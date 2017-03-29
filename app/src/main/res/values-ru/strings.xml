@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">My Application</string>
+    <string name="tab1_translate">Перевод</string>
+    <string name="tab3_history">История</string>
+    <string name="tab2_favorites">Избранное</string>
+    <string name="action_settings">Настройки</string>
+</resources>
