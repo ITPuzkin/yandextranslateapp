@@ -5,4 +5,6 @@ package com.eroshin.victor.myapplication.events;
  */
 
 public class GetPosEvent {
+    public String str;
+    public GetPosEvent(String s){str = s;}
 }

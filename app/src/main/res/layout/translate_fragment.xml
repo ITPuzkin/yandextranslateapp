@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_margin="5dp"
@@ -26,7 +28,8 @@
         android:ems="10"
         android:inputType="textMultiLine"
         android:layout_below="@+id/langFrom"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:layout_toStartOf="@+id/addFavorite" />
 
     <TextView
         android:id="@+id/langTo"
@@ -45,10 +48,14 @@
         android:id="@+id/editText2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:ems="10"
-        android:inputType="textMultiLine"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
         android:layout_below="@+id/editText"
-        android:layout_alignParentStart="true" />
+        android:editable="false"
+        android:ems="10"
+        android:gravity="top"
+        android:inputType="textMultiLine"
+        android:textAlignment="gravity" />
 
     <Button
         android:id="@+id/button"
@@ -57,5 +64,17 @@
         android:layout_alignBottom="@+id/langFrom"
         android:layout_centerHorizontal="true"
         android:text="Swap" />
+
+    <ToggleButton
+        android:id="@+id/addFavorite"
+        android:layout_width="35dp"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/editText"
+        android:layout_alignBottom="@+id/editText"
+        android:layout_alignParentEnd="true"
+        android:background="@android:color/transparent"
+        android:button="@android:drawable/btn_star_big_off"
+        android:textOff=""
+        android:textOn="" />
 
 </RelativeLayout>

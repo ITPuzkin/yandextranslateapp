@@ -5,4 +5,6 @@ package com.eroshin.victor.myapplication.events;
  */
 
 public class ScrollTo {
+    public int position;
+    public ScrollTo(int p){position = p;}
 }

@@ -6,22 +6,30 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import com.eroshin.victor.myapplication.R;
 import com.eroshin.victor.myapplication.core.Translater;
+import com.eroshin.victor.myapplication.events.ClearEditTextEvent;
+import com.eroshin.victor.myapplication.events.DBAddEvent;
+import com.eroshin.victor.myapplication.events.DBUpdateEvent;
+import com.eroshin.victor.myapplication.events.FavButtonCheck;
 import com.eroshin.victor.myapplication.events.LangChangeEvent;
 import com.eroshin.victor.myapplication.events.LangReadyEvent;
 import com.eroshin.victor.myapplication.events.TranslateEvent;
 import com.eroshin.victor.myapplication.events.TranslateFinishEvent;
+import com.eroshin.victor.myapplication.events.TranslateStarEvent;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -42,6 +50,7 @@ public class TranslateFragment extends Fragment{
     EditText editText2;
 
     Button swapButton;
+    ToggleButton favButton;
 
     TextView langFrom;
     TextView langTo;
@@ -52,6 +61,19 @@ public class TranslateFragment extends Fragment{
     @Override
     public void onStart() {
         super.onStart();
+        Log.d("Translatefragment","--------Start-----");
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        Log.d("Translatefragment","--------Stop-----");
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d("Translatefragment","--------Destroy-----");
     }
 
     @Override
@@ -94,7 +116,8 @@ public class TranslateFragment extends Fragment{
 
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
+                favButton.setEnabled(false);
+                favButton.setChecked(false);
             }
 
             @Override
@@ -109,8 +132,9 @@ public class TranslateFragment extends Fragment{
                     @Override
                     public void run() {
                         String txt = editText1.getText().toString();
-                        if(txt.length() > 0)
+                        if(txt.length() > 0) {
                             EventBus.getDefault().post(new TranslateEvent(editText1.getText().toString()));
+                        }
                     }
                 };
                 timer.schedule(task,2000);
@@ -124,17 +148,41 @@ public class TranslateFragment extends Fragment{
                 int bak = choosedLangFrom;
                 choosedLangFrom = choosedLangTo;
                 choosedLangTo = bak;
-                EventBus.getDefault().post(new TranslateEvent(editText1.getText().toString()));
+
                 String txt = langFrom.getText().toString();
                 langFrom.setText(langTo.getText().toString());
                 langTo.setText(txt);
+
+                if(editText1.getText().length()!=0)
+                    EventBus.getDefault().post(new TranslateEvent(editText1.getText().toString()));
+
+            }
+        });
+
+        favButton = (ToggleButton) root.findViewById(R.id.addFavorite);
+        favButton.setEnabled(false);
+        favButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                EventBus.getDefault().post(new DBUpdateEvent(favButton.isChecked()?"1":"0"));
+            }
+        });
+        favButton.setButtonDrawable(android.R.drawable.btn_star_big_off);
+        favButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Log.d("Fav_checked_event","isChecked = "+isChecked);
+                if(!isChecked)
+                    favButton.setButtonDrawable(android.R.drawable.btn_star_big_off);
+                else
+                    favButton.setButtonDrawable(android.R.drawable.btn_star_big_on);
             }
         });
 
         return root;
     }
 
-    @Subscribe(threadMode = ThreadMode.ASYNC)
+    @Subscribe(threadMode = ThreadMode.BACKGROUND)
     public void onMessage(TranslateEvent event){
         String answ = translater.translate(event.getS(),translater.getKeyFrom(choosedLangFrom),translater.getKeyTo(choosedLangTo));
         EventBus.getDefault().post(new TranslateFinishEvent(answ));
@@ -143,11 +191,30 @@ public class TranslateFragment extends Fragment{
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessage(TranslateFinishEvent event){
         editText2.setText(event.getS());
+        EventBus.getDefault().post(new DBAddEvent(editText1.getText().toString(), editText2.getText().toString(), System.currentTimeMillis(),1,translater.getKeyFrom(choosedLangFrom),translater.getKeyTo(choosedLangTo),"0","0"));
+        favButton.setChecked(false);
+        favButton.setEnabled(true);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessage(LangReadyEvent event){
             showDialogChooser(event.isFrom);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessage(ClearEditTextEvent event){
+        editText1.setText("");
+        editText2.setText("");
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessage(TranslateStarEvent event){
+        favButton.setChecked(false);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessage(FavButtonCheck event){
+        favButton.setChecked(event.isCjecked);
     }
 
     public void showDialogChooser(final boolean isfrom){
@@ -171,7 +238,8 @@ public class TranslateFragment extends Fragment{
                     langTo.setText((String) parent.getAdapter().getItem(position));
                     choosedLangTo = position;
                 }
-                EventBus.getDefault().post(new TranslateEvent(editText1.getText().toString()));
+                if(editText1.getText().length()!=0)
+                    EventBus.getDefault().post(new TranslateEvent(editText1.getText().toString()));
                 dialog.dismiss();
             }
         });
@@ -179,5 +247,6 @@ public class TranslateFragment extends Fragment{
 
         dialog.show();
     }
+
 
 }

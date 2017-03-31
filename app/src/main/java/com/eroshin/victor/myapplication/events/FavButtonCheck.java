@@ -5,4 +5,6 @@ package com.eroshin.victor.myapplication.events;
  */
 
 public class FavButtonCheck {
+    public boolean isCjecked;
+    public FavButtonCheck(boolean b){isCjecked = b;}
 }
