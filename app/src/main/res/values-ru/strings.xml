@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">My Application</string>
     <string name="tab1_translate">Перевод</string>
     <string name="tab3_history">История</string>
     <string name="tab2_favorites">Избранное</string>
     <string name="action_settings">Настройки</string>
+    <string name="chkButton">Проверить соеденение</string>
+    <string name="checkConnection">Проверьте подключение</string>
+    <string name="dbError">Ошибка с БД!</string>
+    <string name="deleteSnack">Долгое нажатие для удаления</string>
+    <string name="deleteSnackBtn">Удалить?</string>
 </resources>

@@ -1,6 +1,7 @@
 package com.eroshin.victor.myapplication.fragments;
 
 import android.app.AlertDialog;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -25,8 +26,11 @@ import com.eroshin.victor.myapplication.events.ClearEditTextEvent;
 import com.eroshin.victor.myapplication.events.DBAddEvent;
 import com.eroshin.victor.myapplication.events.DBUpdateEvent;
 import com.eroshin.victor.myapplication.events.FavButtonCheck;
+import com.eroshin.victor.myapplication.events.GetLangsEvent;
+import com.eroshin.victor.myapplication.events.GetLangsReadyEvent;
 import com.eroshin.victor.myapplication.events.LangChangeEvent;
 import com.eroshin.victor.myapplication.events.LangReadyEvent;
+import com.eroshin.victor.myapplication.events.ProgreesBarEvent;
 import com.eroshin.victor.myapplication.events.TranslateEvent;
 import com.eroshin.victor.myapplication.events.TranslateFinishEvent;
 import com.eroshin.victor.myapplication.events.TranslateStarEvent;
@@ -47,7 +51,7 @@ public class TranslateFragment extends Fragment{
     Translater translater;
 
     EditText editText1;
-    EditText editText2;
+    TextView editText2;
 
     Button swapButton;
     ToggleButton favButton;
@@ -56,7 +60,7 @@ public class TranslateFragment extends Fragment{
     TextView langTo;
 
     int choosedLangFrom = 16;
-    int choosedLangTo = 66;
+    int choosedLangTo = 69;
 
     @Override
     public void onStart() {
@@ -90,10 +94,14 @@ public class TranslateFragment extends Fragment{
         View root = inflater.inflate(R.layout.translate_fragment,container,false);
 
         editText1 = (EditText) root.findViewById(R.id.editText);
-        editText2 = (EditText) root.findViewById(R.id.editText2);
+        editText1.setTypeface(Typeface.createFromAsset(getActivity().getAssets(),"tahoma.ttf"));
+        editText2 = (TextView) root.findViewById(R.id.editText2);
+        editText2.setTypeface(Typeface.createFromAsset(getActivity().getAssets(),"tahoma.ttf"));
 
         langFrom = (TextView) root.findViewById(R.id.langFrom);
         langTo = (TextView) root.findViewById(R.id.langTo);
+        langFrom.setTypeface(Typeface.createFromAsset(getActivity().getAssets(),"tahoma.ttf"));
+        langTo.setTypeface(Typeface.createFromAsset(getActivity().getAssets(),"tahoma.ttf"));
 
         langFrom.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -179,13 +187,33 @@ public class TranslateFragment extends Fragment{
             }
         });
 
+        EventBus.getDefault().post(new GetLangsEvent());
+
         return root;
+    }
+
+    @Subscribe(threadMode = ThreadMode.ASYNC)
+    public void onMessage(GetLangsEvent event){
+        EventBus.getDefault().post(new ProgreesBarEvent(true));
+        translater.getLangs();
+        EventBus.getDefault().post(new GetLangsReadyEvent());
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessage(GetLangsReadyEvent event){
+        if(translater.getValues().size()!=0) {
+            langTo.setText(translater.getValues().get(choosedLangTo));
+            langFrom.setText(translater.getValues().get(choosedLangFrom));
+        }
+        EventBus.getDefault().post(new ProgreesBarEvent(false));
     }
 
     @Subscribe(threadMode = ThreadMode.BACKGROUND)
     public void onMessage(TranslateEvent event){
+        EventBus.getDefault().post(new ProgreesBarEvent(true));
         String answ = translater.translate(event.getS(),translater.getKeyFrom(choosedLangFrom),translater.getKeyTo(choosedLangTo));
-        EventBus.getDefault().post(new TranslateFinishEvent(answ));
+        if(answ!=null)
+            EventBus.getDefault().post(new TranslateFinishEvent(answ));
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -194,6 +222,7 @@ public class TranslateFragment extends Fragment{
         EventBus.getDefault().post(new DBAddEvent(editText1.getText().toString(), editText2.getText().toString(), System.currentTimeMillis(),1,translater.getKeyFrom(choosedLangFrom),translater.getKeyTo(choosedLangTo),"0","0"));
         favButton.setChecked(false);
         favButton.setEnabled(true);
+        EventBus.getDefault().post(new ProgreesBarEvent(false));
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -225,7 +254,7 @@ public class TranslateFragment extends Fragment{
         builder.setView(view);
         builder.setTitle("List");
         ListView lw = (ListView) view.findViewById(R.id.listview);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(),android.R.layout.simple_list_item_activated_1,translater.valuse);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(),android.R.layout.simple_list_item_activated_1,translater.getValues());
         final AlertDialog dialog = builder.create();
         lw.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override

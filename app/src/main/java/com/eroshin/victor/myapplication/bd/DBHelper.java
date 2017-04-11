@@ -3,6 +3,7 @@ package com.eroshin.victor.myapplication.bd;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.graphics.Typeface;
 import android.util.Log;
 
 /**
@@ -10,6 +11,8 @@ import android.util.Log;
  */
 
 public class DBHelper extends SQLiteOpenHelper {
+
+    public static final String TABLE_NAME = "mytable";
 
     public DBHelper(Context c){
         super(c,"myDB",null,1);
@@ -19,7 +22,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         Log.d("DBHelper","---on create");
 
-        db.execSQL("create table mytable (" +
+        db.execSQL("create table "+TABLE_NAME+" (" +
                 "_id integer primary key autoincrement," +
                 "fromtext text not null," +
                 "totext text not null," +

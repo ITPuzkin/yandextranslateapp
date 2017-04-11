@@ -1,8 +1,12 @@
 package com.eroshin.victor.myapplication.core;
 
+import android.util.Log;
+
+import com.eroshin.victor.myapplication.events.CheckButtonEvent;
+import com.eroshin.victor.myapplication.events.GetLangsEvent;
 import com.eroshin.victor.myapplication.events.LangChangeEvent;
 import com.eroshin.victor.myapplication.events.LangReadyEvent;
-import com.eroshin.victor.myapplication.events.TranslateEvent;
+import com.eroshin.victor.myapplication.events.NoConnectEvent;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -10,24 +14,15 @@ import org.greenrobot.eventbus.ThreadMode;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.Inet4Address;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
-import java.net.URI;
 import java.net.URL;
-import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
+import java.util.Locale;
 
 /**
  * Created by eroshin on 23.03.2017.
@@ -37,8 +32,14 @@ public class Translater {
 
     private static final String API_KEY = "trnsl.1.1.20170324T124253Z.d06bc2e1708f66d2.714579579a38286b37e490a7890180271f64ac45";
 
-    public ArrayList<String> keys = new ArrayList<>();
-    public ArrayList<String> valuse = new ArrayList<>();
+    private final int SECONDS = 6;
+
+    private ArrayList<String> keys = new ArrayList<>();
+    private ArrayList<String> values = new ArrayList<>();
+
+    public ArrayList<String> getValues() {
+        return values;
+    }
 
     public String getKeyFrom(int position){
         if(keys.size()==0) getLangs();
@@ -61,18 +62,22 @@ public class Translater {
     }
 
     public void getLangs(){
+        if(!keys.isEmpty() && !values.isEmpty())
+            return;
         keys.clear();
-        valuse.clear();
+        values.clear();
         JSONObject jsonObject;
         String answ="";
+        HttpURLConnection connection=null;
         try{
-            URL adress = new URL("https://translate.yandex.net/api/v1.5/tr.json/getLangs?key="+API_KEY+"&ui=ru");
-            HttpURLConnection connection = (HttpURLConnection) adress.openConnection();
+            URL adress = new URL("https://translate.yandex.net/api/v1.5/tr.json/getLangs?key="+API_KEY+"&ui="+Locale.getDefault().getLanguage());
+            connection = (HttpURLConnection) adress.openConnection();
             connection.setRequestMethod("POST");
             connection.setRequestProperty("HOST","translate.yandex.net");
             connection.setRequestProperty("Content-Type","application/x-www-form-urlencoded");
             connection.setDoInput(true);
             connection.setDoOutput(true);
+            connection.setConnectTimeout(SECONDS * 1000);
             connection.connect();
 
             InputStream input = connection.getInputStream();
@@ -86,8 +91,14 @@ public class Translater {
 
             answ = buffer.toString();
 
+            reader.close();
+            connection.disconnect();
         }catch (Exception e){
             e.printStackTrace();
+            Log.d("Translater","getLangs no connection");
+            connection.disconnect();
+            EventBus.getDefault().post(new NoConnectEvent());
+            return;
         }
 
         try {
@@ -101,13 +112,15 @@ public class Translater {
             JSONArray array = jObj.toJSONArray(jObj.names());
             for (int i=0;i<list.size();i++){
                 keys.add(list.get(i));
-                valuse.add(array.getString(i));
+                values.add(array.getString(i));
             }
-            System.out.print("hell");
         }
         catch (Exception e){
             e.printStackTrace();
         }
+
+        EventBus.getDefault().post(new CheckButtonEvent(false));
+
     }
 
     public String translate(String s,String from,String to){
@@ -123,6 +136,7 @@ public class Translater {
             connection.setRequestProperty("Content-Type","application/x-www-form-urlencoded");
             connection.setDoInput(true);
             connection.setDoOutput(true);
+            connection.setConnectTimeout(SECONDS * 1000);
             connection.connect();
 
             InputStream input = connection.getInputStream();
@@ -135,9 +149,12 @@ public class Translater {
             }
 
             answ = buffer.toString();
-
+            reader.close();
+            connection.disconnect();
         }catch (Exception e){
             e.printStackTrace();
+            EventBus.getDefault().post(new NoConnectEvent());
+            return null;
         }
 
         try {
@@ -149,6 +166,7 @@ public class Translater {
         catch (Exception e){
             e.printStackTrace();
         }
+        EventBus.getDefault().post(new CheckButtonEvent(false));
         return answ;
     }
 

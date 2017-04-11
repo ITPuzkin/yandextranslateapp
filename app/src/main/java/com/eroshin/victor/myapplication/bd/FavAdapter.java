@@ -1,8 +1,9 @@
 package com.eroshin.victor.myapplication.bd;
 
-import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Typeface;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,7 +15,6 @@ import android.widget.TextView;
 import com.eroshin.victor.myapplication.MainActivity;
 import com.eroshin.victor.myapplication.R;
 import com.eroshin.victor.myapplication.events.FavDeleteEvent;
-import com.eroshin.victor.myapplication.events.UPdateFavListEvent;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -26,17 +26,22 @@ import org.greenrobot.eventbus.ThreadMode;
 
 public class FavAdapter extends RecyclerView.Adapter<FavAdapter.ViewHolder> {
 
-    SQLiteDatabase db;
+    private SQLiteDatabase db;
 
-    public FavAdapter(){
+    Typeface TAHOMA;
+    Typeface TAHOMABD;
+
+    public FavAdapter(Context c){
         EventBus.getDefault().register(this);
         EventBus.getDefault().post(new GetDBEvent());
+        TAHOMA = Typeface.createFromAsset(c.getAssets(),"tahoma.ttf");
+        TAHOMABD = Typeface.createFromAsset(c.getAssets(),"tahomabd.ttf");
     }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         if(db != null) {
-            final Cursor c = db.query("mytable", null, "fav=1", null, null, null, null);
+            final Cursor c = db.query(DBHelper.TABLE_NAME, null, "fav=1", null, null, null, "datecreate desc");
             if (c.moveToFirst()) {
                 final int idindex = c.getColumnIndex("_id");
                 int fromIndex = c.getColumnIndex("fromtext");
@@ -44,7 +49,7 @@ public class FavAdapter extends RecyclerView.Adapter<FavAdapter.ViewHolder> {
                 int langfrom = c.getColumnIndex("langfrom");
                 int langto = c.getColumnIndex("langto");
 
-                final int favid = c.getColumnIndex("fav");
+                //final int favid = c.getColumnIndex("fav");
                 final int delid = c.getColumnIndex("del");
 
                 if(c.moveToPosition(position)) {
@@ -52,12 +57,17 @@ public class FavAdapter extends RecyclerView.Adapter<FavAdapter.ViewHolder> {
                     holder.to.setText(c.getString(toIndex));
                     holder.fromto.setText(c.getString(langfrom) + "-" + c.getString(langto));
                     holder.favImg.setImageResource(android.R.drawable.btn_star_big_on);
-                    holder.favDel.setOnClickListener(new View.OnClickListener() {
+                    holder.favImg.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             EventBus.getDefault().post(new FavDeleteEvent(c.getInt(idindex),c.getString(delid)));
                         }
                     });
+                    holder.favDel.setVisibility(View.INVISIBLE);
+
+                    holder.from.setTypeface(TAHOMABD);
+                    holder.to.setTypeface(TAHOMA);
+                    holder.fromto.setTypeface(TAHOMA);
                 }
             }
         }
@@ -65,7 +75,7 @@ public class FavAdapter extends RecyclerView.Adapter<FavAdapter.ViewHolder> {
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.favorite_item,parent,false);
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.fav_item,parent,false);
         ViewHolder vh = new ViewHolder(v);
         return vh;
     }
@@ -74,7 +84,7 @@ public class FavAdapter extends RecyclerView.Adapter<FavAdapter.ViewHolder> {
     public int getItemCount() {
         if(db!=null) {
             db = MainActivity.dbHelper.getReadableDatabase();
-            return db.query("mytable", null, "fav=1", null, null, null, null).getCount();
+            return db.query(DBHelper.TABLE_NAME, null, "fav=1", null, null, null, "datecreate desc").getCount();
         }
         return 0;
     }
@@ -82,13 +92,13 @@ public class FavAdapter extends RecyclerView.Adapter<FavAdapter.ViewHolder> {
     public static class ViewHolder extends RecyclerView.ViewHolder{
 
         public TextView from;
-        public TextView to;
-        public TextView fromto;
+        private TextView to;
+        private TextView fromto;
 
-        public ImageView favImg;
-        public ImageButton favDel;
+        private ImageView favImg;
+        private ImageButton favDel;
 
-        public ViewHolder(View v){
+        private ViewHolder(View v){
             super(v);
             from = (TextView)v.findViewById(R.id.fav_from);
             to = (TextView)v.findViewById(R.id.fav_to);
@@ -98,7 +108,7 @@ public class FavAdapter extends RecyclerView.Adapter<FavAdapter.ViewHolder> {
         }
     }
 
-    public static class GetDBEvent{
+    static class GetDBEvent{
     }
 
     @Subscribe(threadMode = ThreadMode.ASYNC)

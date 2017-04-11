@@ -6,6 +6,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
+import com.eroshin.victor.myapplication.R;
 import com.eroshin.victor.myapplication.bd.DBHelper;
 
 import java.util.ArrayList;
@@ -26,22 +27,25 @@ public class AutoCompleteAdapter {
         ctx = c;
     }
 
-    public void init(){
+    public void init(String str){
         SQLiteDatabase db = null;
         try {
             db = dbHelper.getWritableDatabase();
         }catch (Exception e){
-            Toast.makeText(ctx,"Cannot get writable DB!",Toast.LENGTH_SHORT).show();
+            Toast.makeText(ctx,ctx.getString(R.string.dbError),Toast.LENGTH_SHORT).show();
             return;
         }
 
-        Cursor c = db.query("myTable",null,"del=0",null,null,null,null);
+        Cursor c = db.query(DBHelper.TABLE_NAME,null,str,null,null,null,"datecreate desc");
         if(c.moveToFirst()){
             int text = c.getColumnIndex("fromtext");
+            int totext = c.getColumnIndex("totext");
             do{
                 strings.add(c.getString(text));
+                strings.add(c.getString(totext));
             }while (c.moveToNext());
         }
+        c.close();
     }
 
 

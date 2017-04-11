@@ -2,6 +2,7 @@ package com.eroshin.victor.myapplication.fragments;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -13,6 +14,8 @@ import android.widget.ImageButton;
 
 import com.eroshin.victor.myapplication.R;
 import com.eroshin.victor.myapplication.bd.FavAdapter;
+import com.eroshin.victor.myapplication.events.ClearDbEvent;
+import com.eroshin.victor.myapplication.events.ClearEditTextEvent;
 import com.eroshin.victor.myapplication.events.FavClearEvent;
 import com.eroshin.victor.myapplication.events.UPdateFavListEvent;
 
@@ -27,7 +30,7 @@ import org.greenrobot.eventbus.ThreadMode;
 public class FavoriteFragment extends Fragment {
 
     RecyclerView favList;
-    EditText favSearch;
+    //EditText favSearch;
     ImageButton favClear;
 
     RecyclerView.LayoutManager layoutManager;
@@ -51,10 +54,10 @@ public class FavoriteFragment extends Fragment {
         View root = inflater.inflate(R.layout.favorite_fragment,null,false);
 
         favList = (RecyclerView) root.findViewById(R.id.fav_list);
-        favSearch = (EditText) root.findViewById(R.id.fav_search);
+        /*favSearch = (EditText) root.findViewById(R.id.fav_search);*/
         layoutManager = new LinearLayoutManager(getActivity());
 
-        FavAdapter adapter = new FavAdapter();
+        FavAdapter adapter = new FavAdapter(getContext());
         favList.setLayoutManager(layoutManager);
         favList.setAdapter(adapter);
 
@@ -62,7 +65,19 @@ public class FavoriteFragment extends Fragment {
         favClear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Snackbar.make(v,getString(R.string.deleteSnack),Snackbar.LENGTH_LONG).setAction(getString(R.string.deleteSnackBtn), new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        EventBus.getDefault().post(new FavClearEvent());
+                    }
+                }).setActionTextColor(getResources().getColor(R.color.myColorRed)).show();
+            }
+        });
+        favClear.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
                 EventBus.getDefault().post(new FavClearEvent());
+                return true;
             }
         });
 

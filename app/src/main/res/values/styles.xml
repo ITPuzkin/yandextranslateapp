@@ -9,6 +9,11 @@
 
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
+
+    </style>
+    
+    <style name="Test" parent="Base.Widget.AppCompat.Toolbar">
+        
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -19,5 +24,9 @@
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="myTahomaBold">
+        <item name="android:textStyle">italic</item>
+    </style>
 
 </resources>
