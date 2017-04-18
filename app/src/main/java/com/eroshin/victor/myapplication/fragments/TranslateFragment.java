@@ -22,18 +22,18 @@ import android.widget.ToggleButton;
 
 import com.eroshin.victor.myapplication.R;
 import com.eroshin.victor.myapplication.core.Translater;
-import com.eroshin.victor.myapplication.events.ClearEditTextEvent;
-import com.eroshin.victor.myapplication.events.DBAddEvent;
-import com.eroshin.victor.myapplication.events.DBUpdateEvent;
-import com.eroshin.victor.myapplication.events.FavButtonCheck;
-import com.eroshin.victor.myapplication.events.GetLangsEvent;
-import com.eroshin.victor.myapplication.events.GetLangsReadyEvent;
-import com.eroshin.victor.myapplication.events.LangChangeEvent;
-import com.eroshin.victor.myapplication.events.LangReadyEvent;
-import com.eroshin.victor.myapplication.events.ProgreesBarEvent;
-import com.eroshin.victor.myapplication.events.TranslateEvent;
-import com.eroshin.victor.myapplication.events.TranslateFinishEvent;
-import com.eroshin.victor.myapplication.events.TranslateStarEvent;
+import com.eroshin.victor.myapplication.events.ViewEvent.ClearEditTextEvent;
+import com.eroshin.victor.myapplication.events.BDEvent.DBAddEvent;
+import com.eroshin.victor.myapplication.events.BDEvent.DBUpdateEvent;
+import com.eroshin.victor.myapplication.events.BDEvent.FavButtonCheck;
+import com.eroshin.victor.myapplication.events.TranslateEvent.GetLangsEvent;
+import com.eroshin.victor.myapplication.events.TranslateEvent.GetLangsReadyEvent;
+import com.eroshin.victor.myapplication.events.TranslateEvent.LangChangeEvent;
+import com.eroshin.victor.myapplication.events.TranslateEvent.LangReadyEvent;
+import com.eroshin.victor.myapplication.events.ViewEvent.ProgreesBarEvent;
+import com.eroshin.victor.myapplication.events.TranslateEvent.TranslateEvent;
+import com.eroshin.victor.myapplication.events.TranslateEvent.TranslateFinishEvent;
+import com.eroshin.victor.myapplication.events.TranslateEvent.TranslateStarEvent;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -192,7 +192,7 @@ public class TranslateFragment extends Fragment{
         return root;
     }
 
-    @Subscribe(threadMode = ThreadMode.ASYNC)
+    @Subscribe(threadMode = ThreadMode.BACKGROUND)
     public void onMessage(GetLangsEvent event){
         EventBus.getDefault().post(new ProgreesBarEvent(true));
         translater.getLangs();
@@ -211,8 +211,8 @@ public class TranslateFragment extends Fragment{
     @Subscribe(threadMode = ThreadMode.BACKGROUND)
     public void onMessage(TranslateEvent event){
         EventBus.getDefault().post(new ProgreesBarEvent(true));
-        String answ = translater.translate(event.getS(),translater.getKeyFrom(choosedLangFrom),translater.getKeyTo(choosedLangTo));
-        if(answ!=null)
+        String answ = translater.translate(editText1.getText().toString(),translater.getKeyFrom(choosedLangFrom),translater.getKeyTo(choosedLangTo));
+        if(answ!=null && answ.length()!=0)
             EventBus.getDefault().post(new TranslateFinishEvent(answ));
     }
 

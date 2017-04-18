@@ -2,10 +2,9 @@ package com.eroshin.victor.myapplication.core;
 
 import android.util.Log;
 
-import com.eroshin.victor.myapplication.events.CheckButtonEvent;
-import com.eroshin.victor.myapplication.events.GetLangsEvent;
-import com.eroshin.victor.myapplication.events.LangChangeEvent;
-import com.eroshin.victor.myapplication.events.LangReadyEvent;
+import com.eroshin.victor.myapplication.events.ViewEvent.CheckButtonEvent;
+import com.eroshin.victor.myapplication.events.TranslateEvent.LangChangeEvent;
+import com.eroshin.victor.myapplication.events.TranslateEvent.LangReadyEvent;
 import com.eroshin.victor.myapplication.events.NoConnectEvent;
 
 import org.greenrobot.eventbus.EventBus;
@@ -114,13 +113,11 @@ public class Translater {
                 keys.add(list.get(i));
                 values.add(array.getString(i));
             }
+            EventBus.getDefault().post(new CheckButtonEvent(false));
         }
         catch (Exception e){
             e.printStackTrace();
         }
-
-        EventBus.getDefault().post(new CheckButtonEvent(false));
-
     }
 
     public String translate(String s,String from,String to){
@@ -129,6 +126,7 @@ public class Translater {
         if(from.length()==0) from="en";
         if(to.length()==0) from="ru";
         try{
+            if(s.length()==0) throw new Exception();
             URL adress = new URL("https://translate.yandex.net/api/v1.5/tr.json/translate?key="+API_KEY+"&text="+ URLEncoder.encode(s,"UTF-8")+"&lang="+from+"-"+to);
             HttpURLConnection connection = (HttpURLConnection) adress.openConnection();
             connection.setRequestMethod("POST");
@@ -160,7 +158,7 @@ public class Translater {
         try {
             jsonObject = new JSONObject(answ);
             JSONArray array = jsonObject.getJSONArray("text");
-            answ =array.getString(0);
+            answ = array.getString(0);
 
         }
         catch (Exception e){
@@ -170,7 +168,7 @@ public class Translater {
         return answ;
     }
 
-    @Subscribe(threadMode = ThreadMode.ASYNC)
+    @Subscribe(threadMode = ThreadMode.BACKGROUND)
     public void onMessage(LangChangeEvent event){
         getLangs();
         EventBus.getDefault().post(new LangReadyEvent(event.isFrom));

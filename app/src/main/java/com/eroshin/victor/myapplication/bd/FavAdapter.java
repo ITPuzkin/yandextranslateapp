@@ -14,7 +14,7 @@ import android.widget.TextView;
 
 import com.eroshin.victor.myapplication.MainActivity;
 import com.eroshin.victor.myapplication.R;
-import com.eroshin.victor.myapplication.events.FavDeleteEvent;
+import com.eroshin.victor.myapplication.events.BDEvent.FavDeleteEvent;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -30,6 +30,23 @@ public class FavAdapter extends RecyclerView.Adapter<FavAdapter.ViewHolder> {
 
     Typeface TAHOMA;
     Typeface TAHOMABD;
+
+    public int getPosition(String str){
+        if(db!=null) {
+            db = MainActivity.dbHelper.getWritableDatabase();
+            Cursor c = db.query(DBHelper.TABLE_NAME, null, "fav=1", null, null, null, "datecreate desc");
+            if(c.moveToFirst()){
+                int txt = c.getColumnIndex("fromtext");
+                int txtto = c.getColumnIndex("totext");
+                do{
+                    if(c.getString(txt).equals(str) || c.getString(txtto).equals(str))
+                        return c.getPosition();
+                }while (c.moveToNext());
+            }
+            c.close();
+        }
+        return 0;
+    }
 
     public FavAdapter(Context c){
         EventBus.getDefault().register(this);
@@ -111,7 +128,7 @@ public class FavAdapter extends RecyclerView.Adapter<FavAdapter.ViewHolder> {
     static class GetDBEvent{
     }
 
-    @Subscribe(threadMode = ThreadMode.ASYNC)
+    @Subscribe(threadMode = ThreadMode.BACKGROUND)
     public void onMessage(GetDBEvent event){
         db = MainActivity.dbHelper.getWritableDatabase();
     }

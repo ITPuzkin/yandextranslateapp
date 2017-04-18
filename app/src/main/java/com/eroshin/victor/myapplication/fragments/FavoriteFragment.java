@@ -6,18 +6,24 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
+import com.eroshin.victor.myapplication.MainActivity;
 import com.eroshin.victor.myapplication.R;
 import com.eroshin.victor.myapplication.bd.FavAdapter;
-import com.eroshin.victor.myapplication.events.ClearDbEvent;
-import com.eroshin.victor.myapplication.events.ClearEditTextEvent;
-import com.eroshin.victor.myapplication.events.FavClearEvent;
-import com.eroshin.victor.myapplication.events.UPdateFavListEvent;
+import com.eroshin.victor.myapplication.events.BDEvent.FavClearEvent;
+import com.eroshin.victor.myapplication.events.BDEvent.GetPosEvent;
+import com.eroshin.victor.myapplication.events.ViewEvent.ScrollToEvent;
+import com.eroshin.victor.myapplication.events.ViewEvent.UPdateFavListEvent;
+import com.eroshin.victor.myapplication.bd.AutoCompleteAdapter;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -30,10 +36,13 @@ import org.greenrobot.eventbus.ThreadMode;
 public class FavoriteFragment extends Fragment {
 
     RecyclerView favList;
-    //EditText favSearch;
+    AutoCompleteTextView favSearch;
     ImageButton favClear;
 
     RecyclerView.LayoutManager layoutManager;
+
+    AutoCompleteAdapter myAdapter;
+    ArrayAdapter<String> myArrayAdapter;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -54,7 +63,7 @@ public class FavoriteFragment extends Fragment {
         View root = inflater.inflate(R.layout.favorite_fragment,null,false);
 
         favList = (RecyclerView) root.findViewById(R.id.fav_list);
-        /*favSearch = (EditText) root.findViewById(R.id.fav_search);*/
+        favSearch = (AutoCompleteTextView) root.findViewById(R.id.fav_search);
         layoutManager = new LinearLayoutManager(getActivity());
 
         FavAdapter adapter = new FavAdapter(getContext());
@@ -69,6 +78,7 @@ public class FavoriteFragment extends Fragment {
                     @Override
                     public void onClick(View v) {
                         EventBus.getDefault().post(new FavClearEvent());
+                        favSearch.setText("");
                     }
                 }).setActionTextColor(getResources().getColor(R.color.myColorRed)).show();
             }
@@ -77,15 +87,51 @@ public class FavoriteFragment extends Fragment {
             @Override
             public boolean onLongClick(View v) {
                 EventBus.getDefault().post(new FavClearEvent());
+                favSearch.setText("");
                 return true;
+            }
+        });
+
+        myAdapter = new AutoCompleteAdapter(getContext(),0, MainActivity.dbHelper);
+        myAdapter.init("fav=1");
+        myArrayAdapter = new ArrayAdapter<String>(getContext(),android.R.layout.simple_dropdown_item_1line,myAdapter.getList());
+
+        favSearch.setAdapter(myArrayAdapter);
+        favSearch.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                TextView textView = (TextView) view;
+                String str = textView.getText().toString();
+                EventBus.getDefault().post(new GetPosEvent(str));
             }
         });
 
         return root;
     }
 
+    @Subscribe(threadMode = ThreadMode.BACKGROUND)
+    public void onMessage(GetPosEvent event){
+        if(event.fav) {
+            FavAdapter adapter = (FavAdapter) favList.getAdapter();
+            int pos = adapter.getPosition(event.str);
+            EventBus.getDefault().post(new ScrollToEvent(pos));
+        }
+    }
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessage(ScrollToEvent event){
+        if(event.fav) {
+            Log.d("ScrollEvent", "scrolled to " + event.position);
+            favList.scrollToPosition(event.position);
+        }
+    }
+
+
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessage(UPdateFavListEvent event){
         favList.getAdapter().notifyDataSetChanged();
+        myAdapter.init("fav=1");
+        myArrayAdapter = new ArrayAdapter<String>(getContext(),android.R.layout.simple_dropdown_item_1line,myAdapter.getList());
+        favSearch.setAdapter(myArrayAdapter);
+        myArrayAdapter.notifyDataSetChanged();
     }
 }

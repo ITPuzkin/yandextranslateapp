@@ -14,8 +14,8 @@ import android.widget.TextView;
 
 import com.eroshin.victor.myapplication.MainActivity;
 import com.eroshin.victor.myapplication.R;
-import com.eroshin.victor.myapplication.events.DellHistEvent;
-import com.eroshin.victor.myapplication.events.FavAddFromHistory;
+import com.eroshin.victor.myapplication.events.BDEvent.DellHistEvent;
+import com.eroshin.victor.myapplication.events.BDEvent.FavAddFromHistory;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -135,7 +135,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
 
     }
 
-    @Subscribe(threadMode = ThreadMode.ASYNC)
+    @Subscribe(threadMode = ThreadMode.BACKGROUND)
     public void onMessage(FavAdapter.GetDBEvent event){
         db = MainActivity.dbHelper.getWritableDatabase();
     }

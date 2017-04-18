@@ -18,6 +18,11 @@ public class DBHelper extends SQLiteOpenHelper {
         super(c,"myDB",null,1);
     }
 
+
+    /*
+    fav - флаг избранное
+    del - флаг удаленного из истории, но еще в избранном
+     */
     @Override
     public void onCreate(SQLiteDatabase db) {
         Log.d("DBHelper","---on create");

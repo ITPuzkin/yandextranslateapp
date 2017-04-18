@@ -9,4 +9,15 @@
     <string name="dbError">Ошибка с БД!</string>
     <string name="deleteSnack">Долгое нажатие для удаления</string>
     <string name="deleteSnackBtn">Удалить?</string>
+    <string name="about_app">О приложении</string>
+    <string name="about_txt">
+        <![CDATA[
+        <h3>О приложении</h3>
+        <p>Приложение разработанно для "школы мобильной разработки" Яндекс.</p>
+        <p>сторонние компоненты:</p>
+            <ul>
+                <li>eventbus  http://greenrobot.org
+            </ul>
+        ]]>
+    </string>
 </resources>

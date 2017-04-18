@@ -33,7 +33,8 @@
         android:background="@drawable/edit_text_my"
         android:ems="10"
         android:inputType="textMultiLine"
-        android:padding="10dip" />
+        android:padding="10dip"
+        android:paddingRight="30dp" />
 
     <TextView
         android:id="@+id/langTo"

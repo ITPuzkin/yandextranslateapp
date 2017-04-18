@@ -3,18 +3,24 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 25
     buildToolsVersion "25.0.2"
+
+    def date = new Date()
+    def formattedDate = date.format('yyMMddHHmm')
+    def formattedDate2 = date.format('yy.MM.dd.HH.mm')
+    def code = formattedDate.toInteger()
+
     defaultConfig {
         applicationId "com.eroshin.victor.myapplication"
         minSdkVersion 16
         targetSdkVersion 25
-        versionCode 1
-        versionName "1.0"
+        versionCode code
+        versionName ""+formattedDate2
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }

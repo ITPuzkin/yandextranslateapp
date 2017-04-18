@@ -8,11 +8,12 @@
         android:id="@+id/hist_search"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
         android:ems="10"
         android:inputType="text"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:paddingRight="30dp" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/hist_list"

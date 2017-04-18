@@ -20,12 +20,12 @@ import android.widget.TextView;
 import com.eroshin.victor.myapplication.MainActivity;
 import com.eroshin.victor.myapplication.R;
 import com.eroshin.victor.myapplication.bd.HistoryAdapter;
-import com.eroshin.victor.myapplication.events.ClearDbEvent;
-import com.eroshin.victor.myapplication.events.ClearEditTextEvent;
-import com.eroshin.victor.myapplication.events.GetPosEvent;
-import com.eroshin.victor.myapplication.events.ScrollToEvent;
-import com.eroshin.victor.myapplication.events.UpdateHistListEvent;
-import com.eroshin.victor.myapplication.view.AutoCompleteAdapter;
+import com.eroshin.victor.myapplication.events.BDEvent.ClearDbEvent;
+import com.eroshin.victor.myapplication.events.ViewEvent.ClearEditTextEvent;
+import com.eroshin.victor.myapplication.events.BDEvent.GetPosEvent;
+import com.eroshin.victor.myapplication.events.ViewEvent.ScrollToEvent;
+import com.eroshin.victor.myapplication.events.ViewEvent.UpdateHistListEvent;
+import com.eroshin.victor.myapplication.bd.AutoCompleteAdapter;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -50,8 +50,6 @@ public class HistoryFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(!EventBus.getDefault().isRegistered(this))
-            EventBus.getDefault().register(this);
     }
 
     @Override
@@ -81,6 +79,7 @@ public class HistoryFragment extends Fragment {
                     public void onClick(View v) {
                         EventBus.getDefault().post(new ClearDbEvent());
                         EventBus.getDefault().post(new ClearEditTextEvent());
+                        histSearch.setText("");
                     }
                 }).setActionTextColor(getResources().getColor(R.color.myColorRed)).show();
             }
@@ -91,6 +90,7 @@ public class HistoryFragment extends Fragment {
             public boolean onLongClick(View v) {
                 EventBus.getDefault().post(new ClearDbEvent());
                 EventBus.getDefault().post(new ClearEditTextEvent());
+                histSearch.setText("");
                 return true;
             }
         });
@@ -98,7 +98,7 @@ public class HistoryFragment extends Fragment {
         myAdapter = new AutoCompleteAdapter(getContext(),0, MainActivity.dbHelper);
         myAdapter.init("del=0");
 
-        myArrayAdapter = new ArrayAdapter<String>(getContext(),android.R.layout.simple_dropdown_item_1line,myAdapter.strings);
+        myArrayAdapter = new ArrayAdapter<String>(getContext(),android.R.layout.simple_dropdown_item_1line,myAdapter.getList());
         histSearch.setAdapter(myArrayAdapter);
         histSearch.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -111,6 +111,9 @@ public class HistoryFragment extends Fragment {
         });
         histSearch.setTypeface(Typeface.createFromAsset(getActivity().getAssets(),"tahoma.ttf"));
 
+        if(!EventBus.getDefault().isRegistered(this))
+            EventBus.getDefault().register(this);
+
         return root;
     }
 
@@ -118,19 +121,26 @@ public class HistoryFragment extends Fragment {
     public void onMessage(UpdateHistListEvent event){
         histList.getAdapter().notifyDataSetChanged();
         myAdapter.init("del=0");
+        String[] test = myAdapter.getList();
+        myArrayAdapter = new ArrayAdapter<String>(getContext(),android.R.layout.simple_dropdown_item_1line,myAdapter.getList());
+        histSearch.setAdapter(myArrayAdapter);
         myArrayAdapter.notifyDataSetChanged();
     }
 
     @Subscribe(threadMode = ThreadMode.BACKGROUND)
     public void onMessage(GetPosEvent event){
-        HistoryAdapter adapter = (HistoryAdapter)histList.getAdapter();
-        int pos = adapter.getPosition(event.str);
-        EventBus.getDefault().post(new ScrollToEvent(pos));
+        if(!event.fav) {
+            HistoryAdapter adapter = (HistoryAdapter) histList.getAdapter();
+            int pos = adapter.getPosition(event.str);
+            EventBus.getDefault().post(new ScrollToEvent(pos));
+        }
     }
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessage(ScrollToEvent event){
-        Log.d("ScrollEvent","scrolled to "+event.position);
-        histList.scrollToPosition(event.position);
+        if(!event.fav) {
+            Log.d("ScrollEvent", "scrolled to " + event.position);
+            histList.scrollToPosition(event.position);
+        }
     }
 
 }

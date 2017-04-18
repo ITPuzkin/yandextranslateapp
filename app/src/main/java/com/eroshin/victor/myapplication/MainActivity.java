@@ -1,14 +1,12 @@
 package com.eroshin.victor.myapplication;
 
 import android.content.ContentValues;
-import android.content.res.AssetManager;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.internal.TextScale;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
@@ -17,32 +15,34 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
-import android.text.Spanned;
-import android.text.style.AbsoluteSizeSpan;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.eroshin.victor.myapplication.bd.DBHelper;
-import com.eroshin.victor.myapplication.events.CheckButtonEvent;
-import com.eroshin.victor.myapplication.events.ClearDbEvent;
-import com.eroshin.victor.myapplication.events.ClearEditTextEvent;
-import com.eroshin.victor.myapplication.events.DBAddEvent;
-import com.eroshin.victor.myapplication.events.DBUpdateEvent;
-import com.eroshin.victor.myapplication.events.DellHistEvent;
-import com.eroshin.victor.myapplication.events.FavAddFromHistory;
-import com.eroshin.victor.myapplication.events.FavButtonCheck;
-import com.eroshin.victor.myapplication.events.FavClearEvent;
-import com.eroshin.victor.myapplication.events.FavDeleteEvent;
-import com.eroshin.victor.myapplication.events.GetLangsEvent;
+import com.eroshin.victor.myapplication.bd.ViewPagerAdapter;
+import com.eroshin.victor.myapplication.events.TranslateEvent.TranslateEvent;
+import com.eroshin.victor.myapplication.events.ViewEvent.CheckButtonEvent;
+import com.eroshin.victor.myapplication.events.BDEvent.ClearDbEvent;
+import com.eroshin.victor.myapplication.events.ViewEvent.ClearEditTextEvent;
+import com.eroshin.victor.myapplication.events.BDEvent.DBAddEvent;
+import com.eroshin.victor.myapplication.events.BDEvent.DBUpdateEvent;
+import com.eroshin.victor.myapplication.events.BDEvent.DellHistEvent;
+import com.eroshin.victor.myapplication.events.BDEvent.FavAddFromHistory;
+import com.eroshin.victor.myapplication.events.BDEvent.FavButtonCheck;
+import com.eroshin.victor.myapplication.events.BDEvent.FavClearEvent;
+import com.eroshin.victor.myapplication.events.BDEvent.FavDeleteEvent;
+import com.eroshin.victor.myapplication.events.TranslateEvent.GetLangsEvent;
 import com.eroshin.victor.myapplication.events.NoConnectEvent;
-import com.eroshin.victor.myapplication.events.ProgreesBarEvent;
-import com.eroshin.victor.myapplication.events.UPdateFavListEvent;
-import com.eroshin.victor.myapplication.events.UpdateHistListEvent;
+import com.eroshin.victor.myapplication.events.ViewEvent.ProgreesBarEvent;
+import com.eroshin.victor.myapplication.events.ViewEvent.UPdateFavListEvent;
+import com.eroshin.victor.myapplication.events.ViewEvent.UpdateHistListEvent;
+import com.eroshin.victor.myapplication.fragments.AboutActivity;
 import com.eroshin.victor.myapplication.fragments.FavoriteFragment;
 import com.eroshin.victor.myapplication.fragments.HistoryFragment;
 import com.eroshin.victor.myapplication.fragments.TranslateFragment;
@@ -66,10 +66,22 @@ public class MainActivity extends AppCompatActivity{
     public static DBHelper dbHelper;
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.optionmenu,menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Intent it = new Intent(this,AboutActivity.class);
+        startActivity(it);
+        return true;
+    }
+
+    @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        String tedt = System.setProperty("java.net.preferIPv4Stack","true");
         setContentView(R.layout.mainactivity);
         tabs = (TabLayout) findViewById(R.id.tabLayout);
         pager = (ViewPager) findViewById(R.id.viewPager);
@@ -142,7 +154,6 @@ public class MainActivity extends AppCompatActivity{
             }
         });
 
-
 //TODO: change!!
         ViewPagerAdapter adapter = (ViewPagerAdapter) pager.getAdapter();
         for(int i=0;i<tabs.getTabCount();i++)
@@ -154,7 +165,7 @@ public class MainActivity extends AppCompatActivity{
         chkBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                EventBus.getDefault().post(new GetLangsEvent());
+                //EventBus.getDefault().post(new TranslateEvent());
             }
         });
 
@@ -239,7 +250,7 @@ public class MainActivity extends AppCompatActivity{
         EventBus.getDefault().post(new ClearEditTextEvent());
     }
 
-    @Subscribe(threadMode = ThreadMode.ASYNC)
+    @Subscribe(threadMode = ThreadMode.BACKGROUND)
     public void onMessage(DBAddEvent event){
         SQLiteDatabase db = getDB();
         if(db==null) return;
@@ -315,8 +326,7 @@ public class MainActivity extends AppCompatActivity{
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessage(NoConnectEvent event){
-        Snackbar.make(getCurrentFocus(),getString(R.string.checkConnection),Snackbar.LENGTH_SHORT).show();
-        //Toast.makeText(getApplicationContext(),getString(R.string.checkConnection),Toast.LENGTH_SHORT).show();
+        Snackbar.make(pager,getString(R.string.checkConnection),Snackbar.LENGTH_SHORT).show();
         EventBus.getDefault().post(new ProgreesBarEvent(false));
         EventBus.getDefault().post(new CheckButtonEvent(true));
     }

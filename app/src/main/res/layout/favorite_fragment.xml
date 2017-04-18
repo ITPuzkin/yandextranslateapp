@@ -4,12 +4,13 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <EditText
+    <android.support.v7.widget.AppCompatAutoCompleteTextView
         android:id="@+id/fav_search"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:inputType="textPersonName" />
+        android:inputType="textPersonName"
+        android:paddingRight="30dp" />
 
     <ImageView
         android:id="@+id/imageView2"
