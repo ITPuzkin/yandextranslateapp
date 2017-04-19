@@ -47,6 +47,25 @@ public class HistoryFragment extends Fragment {
 
     ArrayAdapter<String> myArrayAdapter;
 
+    private static HistoryFragment inst;
+
+    HistoryAdapter adapter;
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if(EventBus.getDefault().isRegistered(this))
+            EventBus.getDefault().unregister(this);
+        if(EventBus.getDefault().isRegistered(adapter))
+            EventBus.getDefault().unregister(adapter);
+    }
+
+    public static HistoryFragment getInst(){
+        if(inst == null)
+            inst = new HistoryFragment();
+        return inst;
+    }
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,19 +76,22 @@ public class HistoryFragment extends Fragment {
         super.onStart();
     }
 
+    public HistoryFragment(){
+        this.setRetainInstance(true);
+    }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.history_fragment,null,false);
-
+        //Log.d("History fragment","-- on createView history fragment");
         histSearch = (AutoCompleteTextView) root.findViewById(R.id.hist_search);
         histClear = (ImageButton) root.findViewById(R.id.hist_clear);
         histList = (RecyclerView) root.findViewById(R.id.hist_list);
 
         layoutManager = new LinearLayoutManager(getActivity());
         histList.setLayoutManager(layoutManager);
-        HistoryAdapter adapter = new HistoryAdapter(getContext());
+        adapter = new HistoryAdapter(getContext());
         histList.setAdapter(adapter);
         histClear.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -121,7 +143,6 @@ public class HistoryFragment extends Fragment {
     public void onMessage(UpdateHistListEvent event){
         histList.getAdapter().notifyDataSetChanged();
         myAdapter.init("del=0");
-        String[] test = myAdapter.getList();
         myArrayAdapter = new ArrayAdapter<String>(getContext(),android.R.layout.simple_dropdown_item_1line,myAdapter.getList());
         histSearch.setAdapter(myArrayAdapter);
         myArrayAdapter.notifyDataSetChanged();

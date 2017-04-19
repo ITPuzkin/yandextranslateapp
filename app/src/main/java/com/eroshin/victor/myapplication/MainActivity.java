@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
@@ -65,6 +66,10 @@ public class MainActivity extends AppCompatActivity{
     Button chkBtn;
     public static DBHelper dbHelper;
 
+    TranslateFragment translateFragment = null;
+    HistoryFragment historyFragment = null;
+    FavoriteFragment favoriteFragment = null;
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.optionmenu,menu);
@@ -79,9 +84,19 @@ public class MainActivity extends AppCompatActivity{
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+        if(EventBus.getDefault().isRegistered(this))
+            EventBus.getDefault().unregister(this);
+    }
+
+    @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if(!EventBus.getDefault().isRegistered(this))
+            EventBus.getDefault().register(this);
 
+        Log.d("MainActivity","-- on create mainActivity");
         setContentView(R.layout.mainactivity);
         tabs = (TabLayout) findViewById(R.id.tabLayout);
         pager = (ViewPager) findViewById(R.id.viewPager);
@@ -94,6 +109,7 @@ public class MainActivity extends AppCompatActivity{
         toolbar.setTitle(text);
 
         setupViewPager(pager);
+
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(false);
@@ -111,8 +127,6 @@ public class MainActivity extends AppCompatActivity{
                 R.drawable.history_ser_ico,
                 R.drawable.fav_ser_ico,
         };
-
-
 
         tabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
@@ -155,17 +169,17 @@ public class MainActivity extends AppCompatActivity{
         });
 
 //TODO: change!!
-        ViewPagerAdapter adapter = (ViewPagerAdapter) pager.getAdapter();
         for(int i=0;i<tabs.getTabCount();i++)
             tabs.getTabAt(i).setIcon(imageResIdSer[i]);
         tabs.getTabAt(0).setIcon(imageResId[0]);
 
         bar = (ProgressBar) findViewById(R.id.progressBar);
         chkBtn = (Button) findViewById(R.id.chk_btn);
+        chkBtn.setVisibility(View.GONE);
         chkBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //EventBus.getDefault().post(new TranslateEvent());
+                EventBus.getDefault().post(new TranslateEvent());
             }
         });
 
@@ -176,16 +190,24 @@ public class MainActivity extends AppCompatActivity{
     @Override
     protected void onResume() {
         super.onResume();
-        if(!EventBus.getDefault().isRegistered(this))
-            EventBus.getDefault().register(this);
+        Log.d("MainActivity","-- on resume mainActivity");
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d("MainActivity","-- on start mainActivity");
     }
 
 
     private void setupViewPager(ViewPager viewPager){
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager(),getApplicationContext());
-        adapter.addFragment(new TranslateFragment(), getString(R.string.tab1_translate));
-        adapter.addFragment(new HistoryFragment(),getString(R.string.tab3_history));
-        adapter.addFragment(new FavoriteFragment(),getString(R.string.tab2_favorites));
+        if(translateFragment==null) translateFragment = TranslateFragment.getInst();
+        if(historyFragment==null) historyFragment = HistoryFragment.getInst();
+        if(favoriteFragment==null) favoriteFragment = FavoriteFragment.getInst();
+        adapter.addFragment(translateFragment, getString(R.string.tab1_translate));
+        adapter.addFragment(historyFragment,getString(R.string.tab3_history));
+        adapter.addFragment(favoriteFragment,getString(R.string.tab2_favorites));
         viewPager.setAdapter(adapter);
         viewPager.setOffscreenPageLimit(2);
     }
@@ -205,7 +227,7 @@ public class MainActivity extends AppCompatActivity{
         bar.setVisibility(event.isVisible? View.VISIBLE:View.GONE);
     }
 
-    @Subscribe(threadMode = ThreadMode.BACKGROUND)
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessage(DellHistEvent event){
         SQLiteDatabase db = getDB();
         if(db==null) return;
@@ -222,7 +244,7 @@ public class MainActivity extends AppCompatActivity{
 
     }
 
-    @Subscribe(threadMode = ThreadMode.BACKGROUND)
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessage(ClearDbEvent event){
         SQLiteDatabase db = getDB();
         if(db==null) return;
@@ -235,7 +257,7 @@ public class MainActivity extends AppCompatActivity{
         EventBus.getDefault().post(new UpdateHistListEvent());
     }
 
-    @Subscribe(threadMode = ThreadMode.BACKGROUND)
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessage(FavClearEvent event){
         SQLiteDatabase db = getDB();
         if(db==null) return;
@@ -250,7 +272,7 @@ public class MainActivity extends AppCompatActivity{
         EventBus.getDefault().post(new ClearEditTextEvent());
     }
 
-    @Subscribe(threadMode = ThreadMode.BACKGROUND)
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessage(DBAddEvent event){
         SQLiteDatabase db = getDB();
         if(db==null) return;
@@ -278,7 +300,7 @@ public class MainActivity extends AppCompatActivity{
 
     }
 
-    @Subscribe(threadMode = ThreadMode.BACKGROUND)
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessage(DBUpdateEvent event){
         SQLiteDatabase db = getDB();
         if(db==null) return;
@@ -291,7 +313,7 @@ public class MainActivity extends AppCompatActivity{
         EventBus.getDefault().post(new UPdateFavListEvent());
     }
 
-    @Subscribe(threadMode = ThreadMode.BACKGROUND)
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessage(FavAddFromHistory event){
         SQLiteDatabase db = getDB();
         if(db==null) return;
@@ -307,7 +329,7 @@ public class MainActivity extends AppCompatActivity{
         else EventBus.getDefault().post(new FavButtonCheck(true));
     }
 
-    @Subscribe(threadMode = ThreadMode.BACKGROUND)
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessage(FavDeleteEvent event){
         SQLiteDatabase db = getDB();
         if(db==null) return;

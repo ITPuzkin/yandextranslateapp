@@ -22,11 +22,8 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
     private final List<Fragment> mFragmentList = new ArrayList<>();
     private final List<String> mFragmentListTitles = new ArrayList<>();
 
-    private Context ctx;
-
     public ViewPagerAdapter(FragmentManager fm, Context c){
         super(fm);
-        ctx = c;
     }
 
     @Override

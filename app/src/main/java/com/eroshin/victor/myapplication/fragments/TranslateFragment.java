@@ -62,15 +62,44 @@ public class TranslateFragment extends Fragment{
     int choosedLangFrom = 16;
     int choosedLangTo = 69;
 
+    static String prev = "";
+
+    private static TranslateFragment inst;
+
+    public static TranslateFragment getInst(){
+        if(inst == null)
+            inst = new TranslateFragment();
+        return inst;
+    }
+
+    public TranslateFragment(){
+
+        //this.setRetainInstance(true);
+    }
+
+
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("from",editText1.getText().toString());
+        outState.putString("to",editText2.getText().toString());
+    }
+
     @Override
     public void onStart() {
         super.onStart();
-        Log.d("Translatefragment","--------Start-----");
+        Log.d("Translatefragment","--------Start-----"+EventBus.getDefault().isRegistered(translater));
+        register();
     }
 
     @Override
     public void onStop() {
         super.onStop();
+        if(EventBus.getDefault().isRegistered(translater))
+            EventBus.getDefault().unregister(translater);
+        if(EventBus.getDefault().isRegistered(this))
+            EventBus.getDefault().unregister(this);
         Log.d("Translatefragment","--------Stop-----");
     }
 
@@ -83,10 +112,16 @@ public class TranslateFragment extends Fragment{
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        translater = new Translater();
+        translater = Translater.getTranslater();
+    }
+
+    public void register(){
+        if(!EventBus.getDefault().isRegistered(translater))
+            EventBus.getDefault().register(translater);
         if(!EventBus.getDefault().isRegistered(this))
             EventBus.getDefault().register(this);
     }
+
 
     @Nullable
     @Override
@@ -136,11 +171,14 @@ public class TranslateFragment extends Fragment{
             @Override
             public void afterTextChanged(Editable s) {
                 if(task !=null) task.cancel();
+                String txt = editText1.getText().toString();
+                if(prev.equals(txt)) return;
                 task = new TimerTask() {
                     @Override
                     public void run() {
                         String txt = editText1.getText().toString();
                         if(txt.length() > 0) {
+                            prev = txt;
                             EventBus.getDefault().post(new TranslateEvent(editText1.getText().toString()));
                         }
                     }
@@ -186,9 +224,14 @@ public class TranslateFragment extends Fragment{
                     favButton.setButtonDrawable(android.R.drawable.btn_star_big_on);
             }
         });
+        register();
+
 
         EventBus.getDefault().post(new GetLangsEvent());
-
+        if(savedInstanceState!=null && savedInstanceState.containsKey("from") && savedInstanceState.containsKey("to")) {
+            editText1.setText(savedInstanceState.getString("from"));
+            editText2.setText(savedInstanceState.getString("to"));
+        }
         return root;
     }
 
@@ -243,7 +286,7 @@ public class TranslateFragment extends Fragment{
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessage(FavButtonCheck event){
-        favButton.setChecked(event.isCjecked);
+        favButton.setChecked(event.isChecked);
     }
 
     public void showDialogChooser(final boolean isfrom){

@@ -38,22 +38,46 @@ public class FavoriteFragment extends Fragment {
     RecyclerView favList;
     AutoCompleteTextView favSearch;
     ImageButton favClear;
+    FavAdapter adapter;
 
     RecyclerView.LayoutManager layoutManager;
 
     AutoCompleteAdapter myAdapter;
     ArrayAdapter<String> myArrayAdapter;
 
+    private static FavoriteFragment inst;
+
+    public static FavoriteFragment getInst(){
+        if(inst == null)
+            inst = new FavoriteFragment();
+        return inst;
+    }
+
+    public FavoriteFragment(){
+        this.setRetainInstance(true);
+    }
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(!EventBus.getDefault().isRegistered(this))
-            EventBus.getDefault().register(this);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if(EventBus.getDefault().isRegistered(this))
+            EventBus.getDefault().unregister(this);
+        if(EventBus.getDefault().isRegistered(adapter))
+            EventBus.getDefault().unregister(adapter);
     }
 
     @Override
     public void onStart() {
         super.onStart();
+        if(!EventBus.getDefault().isRegistered(this))
+            EventBus.getDefault().register(this);
+        if(!EventBus.getDefault().isRegistered(adapter))
+            EventBus.getDefault().register(adapter);
     }
 
 
@@ -66,7 +90,7 @@ public class FavoriteFragment extends Fragment {
         favSearch = (AutoCompleteTextView) root.findViewById(R.id.fav_search);
         layoutManager = new LinearLayoutManager(getActivity());
 
-        FavAdapter adapter = new FavAdapter(getContext());
+        adapter = new FavAdapter(getContext());
         favList.setLayoutManager(layoutManager);
         favList.setAdapter(adapter);
 

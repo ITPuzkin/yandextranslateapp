@@ -9,7 +9,7 @@
     <string name="dbError">DB error!</string>
     <string name="deleteSnack">Long press to delete</string>
     <string name="deleteSnackBtn">Delete?</string>
-    <string name="licText" translatable="false">Переведено сервисом «Яндекс.Переводчик</string>
+    <string name="licText" translatable="false">Переведено сервисом «Яндекс.Переводчик»</string>
     <string name="licTextLink" translatable="false">http://translate.yandex.ru/</string>
     <string name="about_app">About</string>
 

@@ -31,7 +31,9 @@ public class Translater {
 
     private static final String API_KEY = "trnsl.1.1.20170324T124253Z.d06bc2e1708f66d2.714579579a38286b37e490a7890180271f64ac45";
 
-    private final int SECONDS = 6;
+    private static final int SECONDS = 6;
+
+    private static Translater translater;
 
     private ArrayList<String> keys = new ArrayList<>();
     private ArrayList<String> values = new ArrayList<>();
@@ -51,8 +53,14 @@ public class Translater {
     }
 
 
-    public Translater(){
-        EventBus.getDefault().register(this);
+    private Translater(){
+        //EventBus.getDefault().register(this);
+    }
+
+    public static Translater getTranslater(){
+        if(translater==null)
+            translater = new Translater();
+        return translater;
     }
 
     public String getRequest(){
@@ -95,9 +103,11 @@ public class Translater {
         }catch (Exception e){
             e.printStackTrace();
             Log.d("Translater","getLangs no connection");
-            connection.disconnect();
             EventBus.getDefault().post(new NoConnectEvent());
             return;
+        }
+        finally {
+            connection.disconnect();
         }
 
         try {

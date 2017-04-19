@@ -29,14 +29,12 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
 
     SQLiteDatabase db;
 
-    Context ctx;
     Typeface TAHOMA;
     Typeface TAHOMABD;
 
     public HistoryAdapter(Context c){
         EventBus.getDefault().register(this);
         EventBus.getDefault().post(new FavAdapter.GetDBEvent());
-        ctx = c;
         TAHOMA = Typeface.createFromAsset(c.getAssets(),"tahoma.ttf");
         TAHOMABD = Typeface.createFromAsset(c.getAssets(),"tahomabd.ttf");
     }
