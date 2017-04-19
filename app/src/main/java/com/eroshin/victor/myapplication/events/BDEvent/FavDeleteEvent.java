@@ -7,5 +7,9 @@ package com.eroshin.victor.myapplication.events.BDEvent;
 public class FavDeleteEvent {
     public int id;
     public String isDel;
-    public FavDeleteEvent(int i,String del){id=i;isDel = del;}
+
+    public FavDeleteEvent(int i, String del) {
+        id = i;
+        isDel = del;
+    }
 }

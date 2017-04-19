@@ -6,7 +6,15 @@ package com.eroshin.victor.myapplication.events.TranslateEvent;
 
 public class TranslateEvent {
     private String s;
-    public TranslateEvent(String str){s = str;}
-    public TranslateEvent(){}
-    public String getS(){return s;}
+
+    public TranslateEvent(String str) {
+        s = str;
+    }
+
+    public TranslateEvent() {
+    }
+
+    public String getS() {
+        return s;
+    }
 }

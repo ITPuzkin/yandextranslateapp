@@ -6,5 +6,8 @@ package com.eroshin.victor.myapplication.events.TranslateEvent;
 
 public class LangReadyEvent {
     public boolean isFrom;
-    public LangReadyEvent(boolean isfrom) {isFrom = isfrom;}
+
+    public LangReadyEvent(boolean isfrom) {
+        isFrom = isfrom;
+    }
 }

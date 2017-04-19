@@ -7,7 +7,9 @@ package com.eroshin.victor.myapplication.events.BDEvent;
 public class DellHistEvent {
     public int id;
     public String isFav;
-    public DellHistEvent(int i,String del){
-        id=i;
-        isFav = del;}
+
+    public DellHistEvent(int i, String del) {
+        id = i;
+        isFav = del;
+    }
 }

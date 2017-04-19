@@ -6,5 +6,8 @@ package com.eroshin.victor.myapplication.events.ViewEvent;
 
 public class CheckButtonEvent {
     public boolean isVisible;
-    public CheckButtonEvent(boolean b){isVisible = b;}
+
+    public CheckButtonEvent(boolean b) {
+        isVisible = b;
+    }
 }

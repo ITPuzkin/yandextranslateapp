@@ -6,5 +6,8 @@ package com.eroshin.victor.myapplication.events.ViewEvent;
 
 public class ProgreesBarEvent {
     public boolean isVisible;
-    public ProgreesBarEvent(boolean b){isVisible = b;}
+
+    public ProgreesBarEvent(boolean b) {
+        isVisible = b;
+    }
 }

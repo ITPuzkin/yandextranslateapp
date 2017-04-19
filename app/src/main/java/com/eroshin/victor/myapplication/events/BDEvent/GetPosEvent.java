@@ -7,7 +7,13 @@ package com.eroshin.victor.myapplication.events.BDEvent;
 public class GetPosEvent {
     public String str;
     public boolean fav = false;
-    public GetPosEvent(String s){str = s;}
 
-    public GetPosEvent(String s,boolean b){str = s;fav=b;}
+    public GetPosEvent(String s) {
+        str = s;
+    }
+
+    public GetPosEvent(String s, boolean b) {
+        str = s;
+        fav = b;
+    }
 }

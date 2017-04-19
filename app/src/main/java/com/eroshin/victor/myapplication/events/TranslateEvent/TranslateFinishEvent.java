@@ -6,6 +6,12 @@ package com.eroshin.victor.myapplication.events.TranslateEvent;
 
 public class TranslateFinishEvent {
     private String s;
-    public TranslateFinishEvent(String str){s = str;}
-    public String getS(){return s;}
+
+    public TranslateFinishEvent(String str) {
+        s = str;
+    }
+
+    public String getS() {
+        return s;
+    }
 }

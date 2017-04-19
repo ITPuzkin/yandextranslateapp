@@ -6,7 +6,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
@@ -27,10 +26,7 @@ import android.widget.Toast;
 
 import com.eroshin.victor.myapplication.bd.DBHelper;
 import com.eroshin.victor.myapplication.bd.ViewPagerAdapter;
-import com.eroshin.victor.myapplication.events.TranslateEvent.TranslateEvent;
-import com.eroshin.victor.myapplication.events.ViewEvent.CheckButtonEvent;
 import com.eroshin.victor.myapplication.events.BDEvent.ClearDbEvent;
-import com.eroshin.victor.myapplication.events.ViewEvent.ClearEditTextEvent;
 import com.eroshin.victor.myapplication.events.BDEvent.DBAddEvent;
 import com.eroshin.victor.myapplication.events.BDEvent.DBUpdateEvent;
 import com.eroshin.victor.myapplication.events.BDEvent.DellHistEvent;
@@ -38,9 +34,12 @@ import com.eroshin.victor.myapplication.events.BDEvent.FavAddFromHistory;
 import com.eroshin.victor.myapplication.events.BDEvent.FavButtonCheck;
 import com.eroshin.victor.myapplication.events.BDEvent.FavClearEvent;
 import com.eroshin.victor.myapplication.events.BDEvent.FavDeleteEvent;
-import com.eroshin.victor.myapplication.events.TranslateEvent.GetLangsEvent;
 import com.eroshin.victor.myapplication.events.NoConnectEvent;
+import com.eroshin.victor.myapplication.events.TranslateEvent.TranslateEvent;
+import com.eroshin.victor.myapplication.events.ViewEvent.CheckButtonEvent;
+import com.eroshin.victor.myapplication.events.ViewEvent.ClearEditTextEvent;
 import com.eroshin.victor.myapplication.events.ViewEvent.ProgreesBarEvent;
+import com.eroshin.victor.myapplication.events.ViewEvent.SnackEvent;
 import com.eroshin.victor.myapplication.events.ViewEvent.UPdateFavListEvent;
 import com.eroshin.victor.myapplication.events.ViewEvent.UpdateHistListEvent;
 import com.eroshin.victor.myapplication.fragments.AboutActivity;
@@ -56,7 +55,7 @@ import org.greenrobot.eventbus.ThreadMode;
  * Created by eroshin on 28.03.2017.
  */
 
-public class MainActivity extends AppCompatActivity{
+public class MainActivity extends AppCompatActivity {
 
     TabLayout tabs;
     ViewPager pager;
@@ -72,13 +71,13 @@ public class MainActivity extends AppCompatActivity{
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.optionmenu,menu);
+        getMenuInflater().inflate(R.menu.optionmenu, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Intent it = new Intent(this,AboutActivity.class);
+        Intent it = new Intent(this, AboutActivity.class);
         startActivity(it);
         return true;
     }
@@ -86,17 +85,17 @@ public class MainActivity extends AppCompatActivity{
     @Override
     protected void onStop() {
         super.onStop();
-        if(EventBus.getDefault().isRegistered(this))
+        if (EventBus.getDefault().isRegistered(this))
             EventBus.getDefault().unregister(this);
     }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(!EventBus.getDefault().isRegistered(this))
+        if (!EventBus.getDefault().isRegistered(this))
             EventBus.getDefault().register(this);
 
-        Log.d("MainActivity","-- on create mainActivity");
+        Log.d("MainActivity", "-- on create mainActivity");
         setContentView(R.layout.mainactivity);
         tabs = (TabLayout) findViewById(R.id.tabLayout);
         pager = (ViewPager) findViewById(R.id.viewPager);
@@ -132,7 +131,7 @@ public class MainActivity extends AppCompatActivity{
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 int tabid = tab.getPosition();
-                switch (tabid){
+                switch (tabid) {
                     case 0:
                         tab.setIcon(imageResId[0]);
                         return;
@@ -148,7 +147,7 @@ public class MainActivity extends AppCompatActivity{
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {
                 int tabid = tab.getPosition();
-                switch (tabid){
+                switch (tabid) {
                     case 0:
                         tab.setIcon(imageResIdSer[0]);
                         return;
@@ -169,7 +168,7 @@ public class MainActivity extends AppCompatActivity{
         });
 
 //TODO: change!!
-        for(int i=0;i<tabs.getTabCount();i++)
+        for (int i = 0; i < tabs.getTabCount(); i++)
             tabs.getTabAt(i).setIcon(imageResIdSer[i]);
         tabs.getTabAt(0).setIcon(imageResId[0]);
 
@@ -190,156 +189,154 @@ public class MainActivity extends AppCompatActivity{
     @Override
     protected void onResume() {
         super.onResume();
-        Log.d("MainActivity","-- on resume mainActivity");
+        Log.d("MainActivity", "-- on resume mainActivity");
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        Log.d("MainActivity","-- on start mainActivity");
+        Log.d("MainActivity", "-- on start mainActivity");
     }
 
 
-    private void setupViewPager(ViewPager viewPager){
-        ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager(),getApplicationContext());
-        if(translateFragment==null) translateFragment = TranslateFragment.getInst();
-        if(historyFragment==null) historyFragment = HistoryFragment.getInst();
-        if(favoriteFragment==null) favoriteFragment = FavoriteFragment.getInst();
+    private void setupViewPager(ViewPager viewPager) {
+        ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager(), getApplicationContext());
+        if (translateFragment == null) translateFragment = TranslateFragment.getInst();
+        if (historyFragment == null) historyFragment = HistoryFragment.getInst();
+        if (favoriteFragment == null) favoriteFragment = FavoriteFragment.getInst();
         adapter.addFragment(translateFragment, getString(R.string.tab1_translate));
-        adapter.addFragment(historyFragment,getString(R.string.tab3_history));
-        adapter.addFragment(favoriteFragment,getString(R.string.tab2_favorites));
+        adapter.addFragment(historyFragment, getString(R.string.tab3_history));
+        adapter.addFragment(favoriteFragment, getString(R.string.tab2_favorites));
         viewPager.setAdapter(adapter);
         viewPager.setOffscreenPageLimit(2);
     }
 
-    public SQLiteDatabase getDB(){
+    public SQLiteDatabase getDB() {
         SQLiteDatabase db = null;
         try {
             db = dbHelper.getWritableDatabase();
-        }catch (Exception e){
-            Toast.makeText(this,getString(R.string.dbError),Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            Toast.makeText(this, getString(R.string.dbError), Toast.LENGTH_SHORT).show();
         }
         return db;
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onMessage(ProgreesBarEvent event){
-        bar.setVisibility(event.isVisible? View.VISIBLE:View.GONE);
+    public void onMessage(ProgreesBarEvent event) {
+        bar.setVisibility(event.isVisible ? View.VISIBLE : View.GONE);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onMessage(DellHistEvent event){
+    public void onMessage(DellHistEvent event) {
         SQLiteDatabase db = getDB();
-        if(db==null) return;
+        if (db == null) return;
 
-        if(event.isFav.equals("1")){
+        if (event.isFav.equals("1")) {
             ContentValues cv = new ContentValues();
-            cv.put("del","1");
-            db.update(DBHelper.TABLE_NAME,cv,"_id="+event.id,null);
-        }
-        else{
-            db.delete(DBHelper.TABLE_NAME,"_id="+event.id,null);
+            cv.put("del", "1");
+            db.update(DBHelper.TABLE_NAME, cv, "_id=" + event.id, null);
+        } else {
+            db.delete(DBHelper.TABLE_NAME, "_id=" + event.id, null);
         }
         EventBus.getDefault().post(new UpdateHistListEvent());
 
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onMessage(ClearDbEvent event){
+    public void onMessage(ClearDbEvent event) {
         SQLiteDatabase db = getDB();
-        if(db==null) return;
-        int delCount = db.delete(DBHelper.TABLE_NAME,"fav=0",null);
-        Log.d("DBDeleteEvent","deleted = "+delCount+" lines");
+        if (db == null) return;
+        int delCount = db.delete(DBHelper.TABLE_NAME, "fav=0", null);
+        Log.d("DBDeleteEvent", "deleted = " + delCount + " lines");
         ContentValues cv = new ContentValues();
-        cv.put("del",1);
-        int updCount = db.update(DBHelper.TABLE_NAME,cv,null,null);
-        Log.d("DBDeleteEvent","update = "+updCount+" lines");
+        cv.put("del", 1);
+        int updCount = db.update(DBHelper.TABLE_NAME, cv, null, null);
+        Log.d("DBDeleteEvent", "update = " + updCount + " lines");
         EventBus.getDefault().post(new UpdateHistListEvent());
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onMessage(FavClearEvent event){
+    public void onMessage(FavClearEvent event) {
         SQLiteDatabase db = getDB();
-        if(db==null) return;
-        int delCount = db.delete(DBHelper.TABLE_NAME,"del=1",null);
-        Log.d("DBDeleteEvent","deleted fav = "+delCount+" lines");
+        if (db == null) return;
+        int delCount = db.delete(DBHelper.TABLE_NAME, "del=1", null);
+        Log.d("DBDeleteEvent", "deleted fav = " + delCount + " lines");
         ContentValues cv = new ContentValues();
-        cv.put("fav","0");
-        delCount = db.update(DBHelper.TABLE_NAME,cv,"fav=1",null);
-        Log.d("DBDeleteEvent","fav 1s change to 0 = "+delCount+" lines");
+        cv.put("fav", "0");
+        delCount = db.update(DBHelper.TABLE_NAME, cv, "fav=1", null);
+        Log.d("DBDeleteEvent", "fav 1s change to 0 = " + delCount + " lines");
         EventBus.getDefault().post(new UPdateFavListEvent());
         EventBus.getDefault().post(new UpdateHistListEvent());
         EventBus.getDefault().post(new ClearEditTextEvent());
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onMessage(DBAddEvent event){
+    public void onMessage(DBAddEvent event) {
         SQLiteDatabase db = getDB();
-        if(db==null) return;
+        if (db == null) return;
 
-        if(event.type == 1) {
+        if (event.type == 1) {
 
             ContentValues cv = new ContentValues();
             cv.put("fromtext", event.from);
             cv.put("totext", event.to);
             cv.put("datecreate", event.date);
-            cv.put("langfrom",event.fromindex);
-            cv.put("langto",event.toindex);
-            cv.put("fav",event.isFav);
-            cv.put("del",event.isDel);
+            cv.put("langfrom", event.fromindex);
+            cv.put("langto", event.toindex);
+            cv.put("fav", event.isFav);
+            cv.put("del", event.isDel);
             db.insert(DBHelper.TABLE_NAME, null, cv);
-            Cursor c = db.query(DBHelper.TABLE_NAME,null,null,null,null,null,null);
-            Log.d("DBInputEvent","added "+c.getCount());
+            Cursor c = db.query(DBHelper.TABLE_NAME, null, null, null, null, null, null);
+            Log.d("DBInputEvent", "added " + c.getCount());
             EventBus.getDefault().post(new UpdateHistListEvent());
             c.close();
-        }
-        else {
-            int delCount = db.delete(DBHelper.TABLE_NAME,"fromtext = \""+event.from+"\"",null);
-            Log.d("DBDeleteEvent","deleted = "+delCount+" lines");
+        } else {
+            int delCount = db.delete(DBHelper.TABLE_NAME, "fromtext = \"" + event.from + "\"", null);
+            Log.d("DBDeleteEvent", "deleted = " + delCount + " lines");
         }
 
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onMessage(DBUpdateEvent event){
+    public void onMessage(DBUpdateEvent event) {
         SQLiteDatabase db = getDB();
-        if(db==null) return;
+        if (db == null) return;
 
         ContentValues cv = new ContentValues();
-        cv.put("fav",event.isfav);
-        int num = db.update(DBHelper.TABLE_NAME,cv,"datecreate=(select datecreate from mytable order by datecreate DESC limit 1)",null);
-        Log.d("Update","number update = "+num);
+        cv.put("fav", event.isfav);
+        int num = db.update(DBHelper.TABLE_NAME, cv, "datecreate=(select datecreate from mytable order by datecreate DESC limit 1)", null);
+        Log.d("Update", "number update = " + num);
         EventBus.getDefault().post(new UpdateHistListEvent());
         EventBus.getDefault().post(new UPdateFavListEvent());
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onMessage(FavAddFromHistory event){
+    public void onMessage(FavAddFromHistory event) {
         SQLiteDatabase db = getDB();
-        if(db==null) return;
+        if (db == null) return;
 
         ContentValues cv = new ContentValues();
         String fav = event.isFav;
-        cv.put("fav",fav.equals("1")?"0":"1");
-        db.update(DBHelper.TABLE_NAME,cv,"_id="+event.id,null);
+        cv.put("fav", fav.equals("1") ? "0" : "1");
+        db.update(DBHelper.TABLE_NAME, cv, "_id=" + event.id, null);
         EventBus.getDefault().post(new UpdateHistListEvent());
         EventBus.getDefault().post(new UPdateFavListEvent());
-        if(fav.equals("1"))
+        if (fav.equals("1"))
             EventBus.getDefault().post(new FavButtonCheck(false));
         else EventBus.getDefault().post(new FavButtonCheck(true));
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onMessage(FavDeleteEvent event){
+    public void onMessage(FavDeleteEvent event) {
         SQLiteDatabase db = getDB();
-        if(db==null) return;
+        if (db == null) return;
 
-        if(event.isDel.equals("1"))
-            db.delete(DBHelper.TABLE_NAME,"_id="+event.id,null);
-        else{
+        if (event.isDel.equals("1"))
+            db.delete(DBHelper.TABLE_NAME, "_id=" + event.id, null);
+        else {
             ContentValues cv = new ContentValues();
-            cv.put("fav","0");
-            db.update(DBHelper.TABLE_NAME,cv,"_id="+event.id,null);
+            cv.put("fav", "0");
+            db.update(DBHelper.TABLE_NAME, cv, "_id=" + event.id, null);
         }
         EventBus.getDefault().post(new FavButtonCheck(false));
         EventBus.getDefault().post(new UPdateFavListEvent());
@@ -347,15 +344,20 @@ public class MainActivity extends AppCompatActivity{
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onMessage(NoConnectEvent event){
-        Snackbar.make(pager,getString(R.string.checkConnection),Snackbar.LENGTH_SHORT).show();
+    public void onMessage(NoConnectEvent event) {
+        Snackbar.make(pager, getString(R.string.checkConnection), Snackbar.LENGTH_SHORT).show();
         EventBus.getDefault().post(new ProgreesBarEvent(false));
         EventBus.getDefault().post(new CheckButtonEvent(true));
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onMessage(CheckButtonEvent event){
-        chkBtn.setVisibility(event.isVisible?View.VISIBLE:View.GONE);
+    public void onMessage(CheckButtonEvent event) {
+        chkBtn.setVisibility(event.isVisible ? View.VISIBLE : View.GONE);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessage(SnackEvent event){
+        Snackbar.make(pager,event.msg,Snackbar.LENGTH_SHORT).show();
     }
 
 }

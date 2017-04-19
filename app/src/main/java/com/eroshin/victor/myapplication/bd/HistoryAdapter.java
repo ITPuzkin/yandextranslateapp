@@ -32,16 +32,16 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
     Typeface TAHOMA;
     Typeface TAHOMABD;
 
-    public HistoryAdapter(Context c){
+    public HistoryAdapter(Context c) {
         EventBus.getDefault().register(this);
         EventBus.getDefault().post(new FavAdapter.GetDBEvent());
-        TAHOMA = Typeface.createFromAsset(c.getAssets(),"tahoma.ttf");
-        TAHOMABD = Typeface.createFromAsset(c.getAssets(),"tahomabd.ttf");
+        TAHOMA = Typeface.createFromAsset(c.getAssets(), "tahoma.ttf");
+        TAHOMABD = Typeface.createFromAsset(c.getAssets(), "tahomabd.ttf");
     }
 
     @Override
     public HistoryAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.history_item,parent,false);
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.history_item, parent, false);
         ViewHolder vh = new ViewHolder(v);
         return vh;
     }
@@ -49,24 +49,24 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
 
     @Override
     public int getItemCount() {
-        if(db!=null) {
+        if (db != null) {
             db = MainActivity.dbHelper.getWritableDatabase();
             return db.query(DBHelper.TABLE_NAME, null, "del=0", null, null, null, null).getCount();
         }
         return 0;
     }
 
-    public int getPosition(String str){
-        if(db!=null) {
+    public int getPosition(String str) {
+        if (db != null) {
             db = MainActivity.dbHelper.getWritableDatabase();
             Cursor c = db.query(DBHelper.TABLE_NAME, null, "del=0", null, null, null, "datecreate desc");
-            if(c.moveToFirst()){
+            if (c.moveToFirst()) {
                 int txt = c.getColumnIndex("fromtext");
                 int txtto = c.getColumnIndex("totext");
-                do{
-                    if(c.getString(txt).equals(str) || c.getString(txtto).equals(str))
+                do {
+                    if (c.getString(txt).equals(str) || c.getString(txtto).equals(str))
                         return c.getPosition();
-                }while (c.moveToNext());
+                } while (c.moveToNext());
             }
             c.close();
         }
@@ -75,8 +75,8 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        if(db != null) {
-            final Cursor c = db.query(DBHelper.TABLE_NAME, null, "del=0",null, null, null, "datecreate desc");
+        if (db != null) {
+            final Cursor c = db.query(DBHelper.TABLE_NAME, null, "del=0", null, null, null, "datecreate desc");
             if (c.moveToFirst()) {
                 int fromIndex = c.getColumnIndex("fromtext");
                 int toIndex = c.getColumnIndex("totext");
@@ -86,21 +86,21 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
 
                 final int idindex = c.getColumnIndex("_id");
 
-                if(c.moveToPosition(position)) {
+                if (c.moveToPosition(position)) {
                     holder.from.setText(c.getString(fromIndex));
                     holder.to.setText(c.getString(toIndex));
-                    holder.fromto.setText(c.getString(langfrom)+"-"+c.getString(langto));
-                    holder.histImg.setImageResource(c.getString(favid).equals("1")?android.R.drawable.btn_star_big_on:android.R.drawable.btn_star_big_off);
+                    holder.fromto.setText(c.getString(langfrom) + "-" + c.getString(langto));
+                    holder.histImg.setImageResource(c.getString(favid).equals("1") ? android.R.drawable.btn_star_big_on : android.R.drawable.btn_star_big_off);
                     holder.histImg.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            EventBus.getDefault().post(new FavAddFromHistory(c.getInt(idindex),c.getString(favid)));
+                            EventBus.getDefault().post(new FavAddFromHistory(c.getInt(idindex), c.getString(favid)));
                         }
                     });
                     holder.histDel.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            EventBus.getDefault().post(new DellHistEvent(c.getInt(idindex),c.getString(favid)));
+                            EventBus.getDefault().post(new DellHistEvent(c.getInt(idindex), c.getString(favid)));
                         }
                     });
 
@@ -122,11 +122,11 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
         public ImageView histImg;
         public ImageButton histDel;
 
-        public ViewHolder(View v){
+        public ViewHolder(View v) {
             super(v);
-            from = (TextView)v.findViewById(R.id.fav_from);
-            to = (TextView)v.findViewById(R.id.fav_to);
-            fromto = (TextView)v.findViewById(R.id.fav_fromto);
+            from = (TextView) v.findViewById(R.id.fav_from);
+            to = (TextView) v.findViewById(R.id.fav_to);
+            fromto = (TextView) v.findViewById(R.id.fav_fromto);
             histImg = (ImageView) v.findViewById(R.id.fav_img);
             histDel = (ImageButton) v.findViewById(R.id.del_fav);
         }
@@ -134,7 +134,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
     }
 
     @Subscribe(threadMode = ThreadMode.BACKGROUND)
-    public void onMessage(FavAdapter.GetDBEvent event){
+    public void onMessage(FavAdapter.GetDBEvent event) {
         db = MainActivity.dbHelper.getWritableDatabase();
     }
 

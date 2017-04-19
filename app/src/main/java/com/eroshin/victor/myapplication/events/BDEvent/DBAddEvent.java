@@ -16,7 +16,8 @@ public class DBAddEvent {
     public String isDel;
 
     public int type;// 0 -add     1-del
-    public DBAddEvent(String s1, String s2, long d,int t,String fri,String toi,String fav,String del){
+
+    public DBAddEvent(String s1, String s2, long d, int t, String fri, String toi, String fav, String del) {
         from = s1;
         to = s2;
         date = d;

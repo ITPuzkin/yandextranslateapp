@@ -6,6 +6,8 @@ package com.eroshin.victor.myapplication.events.BDEvent;
 
 public class FavButtonCheck {
     public boolean isChecked;
-    public FavButtonCheck(boolean b){
-        isChecked = b;}
+
+    public FavButtonCheck(boolean b) {
+        isChecked = b;
+    }
 }

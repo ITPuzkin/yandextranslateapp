@@ -19,13 +19,13 @@ import android.widget.TextView;
 
 import com.eroshin.victor.myapplication.MainActivity;
 import com.eroshin.victor.myapplication.R;
+import com.eroshin.victor.myapplication.bd.AutoCompleteAdapter;
 import com.eroshin.victor.myapplication.bd.HistoryAdapter;
 import com.eroshin.victor.myapplication.events.BDEvent.ClearDbEvent;
-import com.eroshin.victor.myapplication.events.ViewEvent.ClearEditTextEvent;
 import com.eroshin.victor.myapplication.events.BDEvent.GetPosEvent;
+import com.eroshin.victor.myapplication.events.ViewEvent.ClearEditTextEvent;
 import com.eroshin.victor.myapplication.events.ViewEvent.ScrollToEvent;
 import com.eroshin.victor.myapplication.events.ViewEvent.UpdateHistListEvent;
-import com.eroshin.victor.myapplication.bd.AutoCompleteAdapter;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -54,14 +54,14 @@ public class HistoryFragment extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
-        if(EventBus.getDefault().isRegistered(this))
+        if (EventBus.getDefault().isRegistered(this))
             EventBus.getDefault().unregister(this);
-        if(EventBus.getDefault().isRegistered(adapter))
+        if (EventBus.getDefault().isRegistered(adapter))
             EventBus.getDefault().unregister(adapter);
     }
 
-    public static HistoryFragment getInst(){
-        if(inst == null)
+    public static HistoryFragment getInst() {
+        if (inst == null)
             inst = new HistoryFragment();
         return inst;
     }
@@ -76,14 +76,14 @@ public class HistoryFragment extends Fragment {
         super.onStart();
     }
 
-    public HistoryFragment(){
+    public HistoryFragment() {
         this.setRetainInstance(true);
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.history_fragment,null,false);
+        View root = inflater.inflate(R.layout.history_fragment, null, false);
         //Log.d("History fragment","-- on createView history fragment");
         histSearch = (AutoCompleteTextView) root.findViewById(R.id.hist_search);
         histClear = (ImageButton) root.findViewById(R.id.hist_clear);
@@ -96,7 +96,7 @@ public class HistoryFragment extends Fragment {
         histClear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Snackbar.make(v,getString(R.string.deleteSnack),Snackbar.LENGTH_LONG).setAction(getString(R.string.deleteSnackBtn), new View.OnClickListener() {
+                Snackbar.make(v, getString(R.string.deleteSnack), Snackbar.LENGTH_LONG).setAction(getString(R.string.deleteSnackBtn), new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         EventBus.getDefault().post(new ClearDbEvent());
@@ -117,48 +117,49 @@ public class HistoryFragment extends Fragment {
             }
         });
 
-        myAdapter = new AutoCompleteAdapter(getContext(),0, MainActivity.dbHelper);
+        myAdapter = new AutoCompleteAdapter(getContext(), 0, MainActivity.dbHelper);
         myAdapter.init("del=0");
 
-        myArrayAdapter = new ArrayAdapter<String>(getContext(),android.R.layout.simple_dropdown_item_1line,myAdapter.getList());
+        myArrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_dropdown_item_1line, myAdapter.getList());
         histSearch.setAdapter(myArrayAdapter);
         histSearch.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 TextView textView = (TextView) view;
                 String str = textView.getText().toString();
-                Log.d("AutoComplete","selected "+position+" id="+id+" txt="+str);
+                Log.d("AutoComplete", "selected " + position + " id=" + id + " txt=" + str);
                 EventBus.getDefault().post(new GetPosEvent(str));
             }
         });
-        histSearch.setTypeface(Typeface.createFromAsset(getActivity().getAssets(),"tahoma.ttf"));
+        histSearch.setTypeface(Typeface.createFromAsset(getActivity().getAssets(), "tahoma.ttf"));
 
-        if(!EventBus.getDefault().isRegistered(this))
+        if (!EventBus.getDefault().isRegistered(this))
             EventBus.getDefault().register(this);
 
         return root;
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onMessage(UpdateHistListEvent event){
+    public void onMessage(UpdateHistListEvent event) {
         histList.getAdapter().notifyDataSetChanged();
         myAdapter.init("del=0");
-        myArrayAdapter = new ArrayAdapter<String>(getContext(),android.R.layout.simple_dropdown_item_1line,myAdapter.getList());
+        myArrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_dropdown_item_1line, myAdapter.getList());
         histSearch.setAdapter(myArrayAdapter);
         myArrayAdapter.notifyDataSetChanged();
     }
 
     @Subscribe(threadMode = ThreadMode.BACKGROUND)
-    public void onMessage(GetPosEvent event){
-        if(!event.fav) {
+    public void onMessage(GetPosEvent event) {
+        if (!event.fav) {
             HistoryAdapter adapter = (HistoryAdapter) histList.getAdapter();
             int pos = adapter.getPosition(event.str);
             EventBus.getDefault().post(new ScrollToEvent(pos));
         }
     }
+
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onMessage(ScrollToEvent event){
-        if(!event.fav) {
+    public void onMessage(ScrollToEvent event) {
+        if (!event.fav) {
             Log.d("ScrollEvent", "scrolled to " + event.position);
             histList.scrollToPosition(event.position);
         }

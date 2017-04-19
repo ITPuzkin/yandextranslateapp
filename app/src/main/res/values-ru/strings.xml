@@ -3,8 +3,6 @@
     <string name="tab1_translate">Перевод</string>
     <string name="tab3_history">История</string>
     <string name="tab2_favorites">Избранное</string>
-    <string name="action_settings">Настройки</string>
-    <string name="chkButton">Проверить соеденение</string>
     <string name="checkConnection">Проверьте подключение</string>
     <string name="dbError">Ошибка с БД!</string>
     <string name="deleteSnack">Долгое нажатие для удаления</string>
@@ -20,4 +18,9 @@
             </ul>
         ]]>
     </string>
+
+    <string name="err_limit">Превышено суточное ограничение на объем переведенного текста</string>
+    <string name="err_txtlimit">Превышен максимально допустимый размер текста</string>
+    <string name="err_txtcnt">Превышен максимально допустимый размер текста</string>
+    <string name="err_txtdirect">Exceeded the maximum allowed text size</string>
 </resources>

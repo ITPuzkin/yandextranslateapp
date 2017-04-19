@@ -1,10 +1,8 @@
 <resources>
     <string name="app_name" translatable="false">Япереводчик</string>
-    <string name="action_settings">Settings</string>
     <string name="tab1_translate">Translate</string>
     <string name="tab2_favorites">Favorites</string>
     <string name="tab3_history">History</string>
-    <string name="chkButton">Check connection</string>
     <string name="checkConnection">Check connection</string>
     <string name="dbError">DB error!</string>
     <string name="deleteSnack">Long press to delete</string>
@@ -24,4 +22,8 @@
         ]]>
 
     </string>
+    <string name="err_limit">Exceeded the daily limit on the amount of translated text</string>
+    <string name="err_txtlimit">Exceeded the maximum allowed text size</string>
+    <string name="err_txtcnt">Exceeded the maximum allowed text size</string>
+    <string name="err_txtdirect">The specified translation direction is not supported</string>
 </resources>

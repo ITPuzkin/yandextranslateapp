@@ -7,5 +7,8 @@ package com.eroshin.victor.myapplication.events.BDEvent;
 // при добавлении/удалении из списка избранных
 public class DBUpdateEvent {
     public String isfav;
-    public DBUpdateEvent(String fav){isfav = fav;}
+
+    public DBUpdateEvent(String fav) {
+        isfav = fav;
+    }
 }

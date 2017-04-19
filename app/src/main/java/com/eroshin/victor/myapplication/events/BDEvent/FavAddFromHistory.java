@@ -7,7 +7,9 @@ package com.eroshin.victor.myapplication.events.BDEvent;
 public class FavAddFromHistory {
     public int id;
     public String isFav;
-    public FavAddFromHistory(int i,String del){
-        id=i;
-        isFav = del;}
+
+    public FavAddFromHistory(int i, String del) {
+        id = i;
+        isFav = del;
+    }
 }

@@ -4,11 +4,6 @@ import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentStatePagerAdapter;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +17,7 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
     private final List<Fragment> mFragmentList = new ArrayList<>();
     private final List<String> mFragmentListTitles = new ArrayList<>();
 
-    public ViewPagerAdapter(FragmentManager fm, Context c){
+    public ViewPagerAdapter(FragmentManager fm, Context c) {
         super(fm);
     }
 
@@ -42,7 +37,7 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
     }
 
 
-    public void addFragment(Fragment fragment, String title){
+    public void addFragment(Fragment fragment, String title) {
         mFragmentList.add(fragment);
         mFragmentListTitles.add(title);
     }

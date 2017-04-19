@@ -1,11 +1,9 @@
 package com.eroshin.victor.myapplication.fragments;
 
-import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NavUtils;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Spannable;
@@ -15,10 +13,7 @@ import android.text.style.ForegroundColorSpan;
 import android.view.MenuItem;
 import android.widget.TextView;
 
-import com.eroshin.victor.myapplication.MainActivity;
 import com.eroshin.victor.myapplication.R;
-
-import org.w3c.dom.Text;
 
 /**
  * Created by eroshin on 17.04.2017.
@@ -53,7 +48,7 @@ public class AboutActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case android.R.id.home:
                 NavUtils.navigateUpFromSameTask(this);
                 return true;
