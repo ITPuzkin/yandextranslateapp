@@ -59,6 +59,7 @@ public class TranslateFragment extends Fragment {
     TextView langFrom;
     TextView langTo;
 
+    //magic
     int choosedLangFrom = 16;
     int choosedLangTo = 69;
 
