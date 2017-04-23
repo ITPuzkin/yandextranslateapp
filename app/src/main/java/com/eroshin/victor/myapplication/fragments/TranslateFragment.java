@@ -60,8 +60,8 @@ public class TranslateFragment extends Fragment {
     TextView langTo;
 
     //magic
-    int choosedLangFrom = 16;
-    int choosedLangTo = 69;
+    int choosedLangFrom = 0;
+    int choosedLangTo = 0;
 
     static String prev = "";
 
@@ -74,8 +74,7 @@ public class TranslateFragment extends Fragment {
     }
 
     public TranslateFragment() {
-
-        //this.setRetainInstance(true);
+        this.setRetainInstance(true);
     }
 
 
@@ -245,6 +244,10 @@ public class TranslateFragment extends Fragment {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessage(GetLangsReadyEvent event) {
         if (translater.getValues().size() != 0) {
+            if(choosedLangFrom == 0 && choosedLangTo==0){
+                choosedLangFrom = translater.getKeys().indexOf("en");
+                choosedLangTo = translater.getKeys().indexOf("ru");
+            }
             langTo.setText(translater.getValues().get(choosedLangTo));
             langFrom.setText(translater.getValues().get(choosedLangFrom));
         }
@@ -254,7 +257,7 @@ public class TranslateFragment extends Fragment {
     @Subscribe(threadMode = ThreadMode.BACKGROUND)
     public void onMessage(TranslateEvent event) {
         EventBus.getDefault().post(new ProgreesBarEvent(true));
-        String answ = translater.translate(editText1.getText().toString(), translater.getKeyFrom(choosedLangFrom), translater.getKeyTo(choosedLangTo));
+        String answ = translater.translate(editText1.getText().toString(), translater.getKeyFrom(choosedLangFrom), translater.getKeyFrom(choosedLangTo));
         if (answ != null && answ.length() != 0)
             EventBus.getDefault().post(new TranslateFinishEvent(answ));
     }
@@ -262,7 +265,7 @@ public class TranslateFragment extends Fragment {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessage(TranslateFinishEvent event) {
         editText2.setText(event.getS());
-        EventBus.getDefault().post(new DBAddEvent(editText1.getText().toString(), editText2.getText().toString(), System.currentTimeMillis(), 1, translater.getKeyFrom(choosedLangFrom), translater.getKeyTo(choosedLangTo), "0", "0"));
+        EventBus.getDefault().post(new DBAddEvent(editText1.getText().toString(), editText2.getText().toString(), System.currentTimeMillis(), 1, translater.getKeyFrom(choosedLangFrom), translater.getKeyFrom(choosedLangTo), "0", "0"));
         favButton.setChecked(false);
         favButton.setEnabled(true);
         EventBus.getDefault().post(new ProgreesBarEvent(false));

@@ -46,13 +46,11 @@ public class Translater {
     public ArrayList<String> getValues() {
         return values;
     }
-
-    public String getKeyFrom(int position) {
-        if (keys.size() == 0) getLangs();
-        return keys.get(position);
+    public ArrayList<String> getKeys() {
+        return keys;
     }
 
-    public String getKeyTo(int position) {
+    public String getKeyFrom(int position) {
         if (keys.size() == 0) getLangs();
         return keys.get(position);
     }
